@@ -1,0 +1,17 @@
+{
+    "appVersion":"Version 1.0.1",
+    "email":"Email",
+    "password": "Password",
+    "browseCars":"Browse Cars",
+    "allRightsText": "All rights reserved 2019 Harmony ICT",
+    "loading":"Loading...",
+    "authenticating":"Authenticating...",
+    "search":"Enter city, airport or ",
+    "tabs" : {
+        "search":"Search",
+        "trips":"Trips",
+        "messages":"Messages",
+        "host":"Host",
+        "profile":"Profile"
+    }
+}
