@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
         backgroundColor:'white',
         padding:10,
         position:'relative',
-        borderBottomWidth: 1,
+        borderBottomWidth: 5,
         borderBottomColor: 'gray'
     },
     ownerText: {
