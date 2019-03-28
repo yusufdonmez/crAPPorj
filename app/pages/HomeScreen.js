@@ -23,6 +23,8 @@ class HomeScreen extends Component {
         global.headerMaxHeight = 350;
         global.headerMinHeight = 120;
         global.headerScrollDistance = 230;
+        
+        this.searchCar = this.searchCar.bind(this)
     }
     
     _renderScrollViewContent() {
@@ -38,8 +40,12 @@ class HomeScreen extends Component {
         );
     }
 
-    openCarDetails(){
-        Actions.CarDetails();
+    openCarDetails(item){
+        Actions.CarDetails({title:item.name,itemDetails:item});
+    }
+
+    searchCar (){
+        Actions.CarList({title:this.state.mySearchText});
     }
 
     render(){
@@ -61,11 +67,6 @@ class HomeScreen extends Component {
         const searchMargin = this.state.scrollY.interpolate({
             inputRange: [0, headerScrollDistance-90],
             outputRange: [150, 30],
-            extrapolate: 'clamp',
-        });
-        const insurancePartnerMargin = this.state.scrollY.interpolate({
-            inputRange: [0, headerScrollDistance],
-            outputRange: [90, 60],
             extrapolate: 'clamp',
         });
         return (
@@ -95,10 +96,10 @@ class HomeScreen extends Component {
                         <TextInput style={styles.searchText} secureTextEntry={false}
                             placeholder={strings('search')}
                             value={this.state.mySearchText}
-                            onChangeText={text => this.setState({mySearchText: text})} 
+                            onChangeText={text => this.setState({mySearchText:text})} 
+                            onSubmitEditing={() => this.searchCar()} 
                             />
 
-                        <Animated.Text style={[styles.insurancePartner, {opacity:imageOpacity,marginTop:insurancePartnerMargin}]}>Insurance Partner</Animated.Text>
                     </Animated.View>
                 </Animated.View>
                 
