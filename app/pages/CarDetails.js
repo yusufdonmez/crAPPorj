@@ -56,6 +56,10 @@ class CarDetails extends Component {
         });
     }
 
+    shareCar(){
+        Actions.Account();
+    }
+
     render() {
         return (
             <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
@@ -144,9 +148,39 @@ class CarDetails extends Component {
 
                             <Row style={styles.specContainer}>
                                 <Left style={styles.iconContainer}>
+                                    <TouchableOpacity onPress={() => (Actions.Guidelines() )}>
+                                        <Icon name="document" size={24} color='gray'></Icon>
+                                    </TouchableOpacity>
+                                </Left>
+                                <Body style={{flex:2,justifyContent: 'flex-start'}}>
+                                    <TouchableOpacity style={{textAlign:'left'}} onPress={() => (Actions.Guidelines() )}>
+                                        <Text> Guidelines </Text>
+                                    </TouchableOpacity>
+                                </Body>
+                                <Right style={{flex:5}}>
+                                </Right>
+                            </Row>
+
+                            <Row style={styles.specContainer}>
+                                <Left style={styles.iconContainer}>
+                                    <TouchableOpacity onPress={() => (Actions.FAQuestions() )}>
+                                        <Icon name="help-buoy" size={24} color='gray'></Icon>
+                                    </TouchableOpacity>
+                                </Left>
+                                <Body style={{flex:2,justifyContent: 'flex-start'}}>
+                                    <TouchableOpacity style={{textAlign:'left'}} onPress={() => (Actions.FAQuestions() )}>
+                                        <Text style={{textAlign: 'left'}}> FAQ </Text>
+                                    </TouchableOpacity>
+                                </Body>
+                                <Right  style={{flex:5}}>
+                                </Right>
+                            </Row>
+
+                            <Row style={styles.specContainer}>
+                                <Left style={styles.iconContainer}>
                                     <Icon name="star" size={24} color='gray'></Icon>
                                 </Left>
-                                <Body style={{flex:1,justifyContent: 'flex-start'}}>
+                                <Body style={{flex:2,justifyContent: 'flex-start'}}>
                                     <Text> Reviews </Text>
                                 </Body>
                                 <Right style={styles.reviewBtnContainer}>
@@ -325,7 +359,7 @@ const styles = StyleSheet.create({
     },
     reviewBtnContainer: {
         flexDirection: 'row',
-        flex: 4,
+        flex: 5,
         alignItems: 'center',
         justifyContent: 'flex-end',
         

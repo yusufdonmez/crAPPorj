@@ -1,17 +1,43 @@
-import React, { Component } from 'react';
-import {DrawerLayoutAndroid,View,Text,Platform,StyleSheet} from "react-native";
+import React, { Component } from "react";
+import { 
+    View,
+    Text,
+    StyleSheet
+} from "react-native";
+import { Actions } from "react-native-router-flux";
 
-
-export default class ProfilePage extends Component {
-    constructor(props){
-        super(props);
-    }
-    render(){
+    var createRightButton = function() {
         return (
-            <View style={{flex: 1, alignItems: 'center'}}>
-                <Text style={{margin: 10, fontSize: 15, textAlign: 'right'}}>Profile</Text>
+            <TouchableHighlight onPress={() => {this.editProfileModal()} }>
+                <Icon name="create" size={24} style={{ color: 'white', paddingRight: 10 }} />
+            </TouchableHighlight>
+        );
+    }
+class ProfilePage extends Component {
+    constructor(props){
+        super(props)
+        
+        this.editProfileModal = this.editProfileModal.bind(this);
+    }
+    
+    editProfileModal(){
+        Actions.Account();
+    }
+
+    render() {
+        return (
+            <View style={styles.container}>
+                <Text>ProfilePage</Text>
             </View>
         );
     }
-
 }
+export default ProfilePage;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+});
