@@ -1,0 +1,6 @@
+# platform :ios, '9.0'
+target 'CarRental' do
+    # Pods for ReactNativeMaps
+    pod 'React', path: '../node_modules/react-native'
+    pod 'GoogleMaps'
+    end

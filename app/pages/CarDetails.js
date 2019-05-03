@@ -7,24 +7,28 @@ import {
     Text, 
     View,
     SafeAreaView,
+    ScrollView,
     Animated
     } from "react-native";
     
 import {Actions} from 'react-native-router-flux'
 
-import PickupAndReturn from './PickupAndReturn'
+import PickupAndReturn from '../SubPages/PickupAndReturn'
 
 import {Container,Content,Left,Button,Icon,Grid, Row,Body, Right, Header, ListItem, Thumbnail} from "native-base";
 import { TouchableOpacity, TouchableHighlight } from "react-native-gesture-handler";
 
 const {width,height} = Dimensions.get('window')
 
+
 class CarDetails extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            isLoading:true,
             scrollY: new Animated.Value(0),
             displayPickup:false,
+            carDetails:[],
             address:'Kocaeli Merkez mah. ecenaz sok. no:1'
         };
 
@@ -32,6 +36,35 @@ class CarDetails extends Component {
 
         this._renderReviewStars = this._renderReviewStars.bind(this);
     }
+
+    componentDidMount(){
+        console.log(global.appAddress + '/service/c1/json/PublicService/carDetails/en_US')
+        
+        fetch(global.appAddress + '/service/c1/json/PublicService/carDetails/en_US?id=' + this.props.itemDetails.id ,
+        {
+            credentials: 'include',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('Component Did Mount Data List: '+ responseJson);
+            if( responseJson != undefined && responseJson.length != 0 ){
+                console.log('<--- carDetails service loaded from server --->');
+                this.setState({isLoading:false,
+                            carDetails: responseJson});
+            }
+            else {
+                this.setState({isLoading:false,noRecordsFound:true});
+            }
+        })
+        .catch((error) => {
+            console.error(error.message + ' on CarDetails at line 64');
+        });
+    }
+
     _renderReviewStars(star){
         let stars = [];
 		for (var i = 1; i <= 5; i++) {
@@ -61,30 +94,56 @@ class CarDetails extends Component {
     }
 
     render() {
+        const data = this.state.carDetails;
         return (
             <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
                 <Container style={styles.fill}>
                     <Content>
-                        <Grid>
-                            <Row >
-                                <Image source={this.props.itemDetails.img} style={{height: 200, width: null, flex: 1}}/>
+                        <Grid >
+                            <Row style={ {position:"relative" } } >
+                                <ScrollView style={{height: 200, width: null, flex: 1}} pagingEnabled={true} horizontal={true} showsHorizontalScrollIndicator={false}>
+                                    {data.carPhotos != undefined && data.carPhotos.map((item, i) =>
+                                        <View key={i} style={styles.cardContainer}>
+                                            <Image style={{height: 200, width: null, flex: 1}}
+                                                source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}
+                                            />
+
+                                            <View style={styles.imgInfoContainer}>
+                                                <View style={styles.nOfImgContainer}>
+                                                    <View style={styles.borderView}>
+                                                        <Text style={styles.noOfImg}>{i+1} of {data.carPhotos.length}</Text>
+                                                    </View>
+                                                </View>
+                                                <View style={styles.verifiedContainer}>
+                                                    <View style={styles.borderView}>
+                                                        <Text style={styles.verifiedText}>Verified Photo</Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </View>
+                                    )}
+                                </ScrollView>
                             </Row>
-                            <Row style={ { height: 20 } }>
+                            <Row style={ { height: 20,position:"relative" } }>
                                 <Button transparent>
-                                    <Text style={styles.ownerText}>{this.props.itemDetails.owner}</Text>
+                                    <Text style={styles.ownerText}>{data.DailyCost}</Text>
                                 </Button>
+                                <View style={styles.priceConteiner}>
+                                    <Text style={styles.priceText}>{data.DailyCost}</Text>
+                                    <Text style={styles.normalTextStyle}>SAR</Text>
+                                    <Text style={styles.normalTextStyle}>per day</Text>
+                                </View>
                             </Row>
                             <Row style={ { height: 30 } }>
                                 <Button transparent>
-                                    <Text style={styles.carNameText}>{this.props.itemDetails.name}</Text>
-                                    <Text style={styles.yearText}>{this.props.itemDetails.year}</Text>
+                                    <Text style={styles.carNameText}>{data.Make} {data.Brand} </Text>
+                                    <Text style={styles.yearText}>{data.ModelYear}</Text>
                                 </Button>
                             </Row>
                             <Row style={ { height: 30 } }>
                                 <Button transparent>
                                     <Text style={styles.tripNumberText}> 
-                                        { this._renderReviewStars(this.props.itemDetails.star) } 
-                                        {this.props.itemDetails.tripNumber} Trip
+                                        {data.tripCount} Trip { this._renderReviewStars(data.NoOfStar) }
                                     </Text>
                                 </Button>
                             </Row>
@@ -128,7 +187,7 @@ class CarDetails extends Component {
                                 <Text style={styles.titleText}>Features</Text>
                             </Row>
                             <Row style={styles.specContainer}>
-                                {this.props.itemDetails.features.map((item, i,arr) =>
+                                {data.carFeature != undefined && data.carFeature.map((item, i,arr) =>
                                     <View style={{height:40}}>
                                     {i < Math.floor(width/70) && (
                                         <Icon name={item.icon} size={24} color='gray' style={styles.featureIcon}></Icon>
@@ -282,7 +341,7 @@ const styles = StyleSheet.create({
     carNameText: {
         color:'black',
         fontWeight:'600',
-        fontSize:25,
+        fontSize:22,
         marginStart:10
     },
     yearText: {
@@ -300,14 +359,20 @@ const styles = StyleSheet.create({
     priceText: {
         color: 'black',
         fontWeight:'900',
-        fontSize:35
+        fontSize:25
     },
     priceConteiner:{
         position: "absolute", 
+        textAlign:'center',
+        justifyContent:'center',
+        alignItems:'center',
         right: 0, 
         top: -20, 
         backgroundColor: 'white', 
-        padding: 20, 
+        paddingLeft:20,
+        paddingRight: 20,
+        paddingBottom: 20,
+        paddingTop: 5,
         borderTopLeftRadius: 20
     },
     iconContainer: {
@@ -363,5 +428,47 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'flex-end',
         
-    }
+    },
+    imgInfoContainer:{
+        flexDirection: 'row',
+        position: 'absolute',
+        left: 0,
+        bottom:0
+    },
+    nOfImgContainer:{
+        backgroundColor: "#4b4849b3",
+        margin: 10,
+        padding:3,
+        borderRadius:20
+    },
+    verifiedContainer: {
+        backgroundColor: "#4b4849b3",
+        margin: 10,
+        padding:3,
+        borderRadius:20
+    },
+    noOfImg: {
+        fontSize:10,
+        color:'white'
+    },
+    verifiedText: {
+        fontSize:10,
+        color:'white'
+    },
+    borderView:{
+        borderColor:'white',
+        borderWidth: 1,
+        borderRadius:20,
+        paddingTop:2,
+        paddingBottom:2,
+        paddingRight:5,
+        paddingLeft: 5
+    },
+    cardContainer: {
+        height:200,
+        width: width,
+        position:'relative',
+        backgroundColor:'white'
+    },
+
 });

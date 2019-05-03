@@ -29,7 +29,7 @@ class Destinations extends Component {
                 <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
                     <List style={styles.cardContainer}>
                         {data.map((item, i) =>
-                            <ListItem style={{flexDirection:'row',padding:10,position:"relative"}} onPress={() => {Actions.ProfilePage();}}>
+                            <ListItem key={i} style={{flexDirection:'row',padding:10,position:"relative"}} onPress={() => {Actions.ProfilePage();}}>
                                 <Thumbnail avatar style={{width:120,height: 120,borderRadius: 60}} source={item.img} />
                                 <Text style={styles.destination}>{item.name}</Text>
                             </ListItem>

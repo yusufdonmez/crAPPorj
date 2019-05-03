@@ -5,5 +5,11 @@
     "browseCars":"Browse Cars",
     "allRightsText": "All rights reserved 2019 Harmony ICT",
     "loading":"Loading...",
-    "authenticating":"Authenticating..."
+    "authenticating":"Authenticating...",
+    "login":{
+        "email":"البريد الإلكتروني",
+        "password": "كلمة المرور",
+        "loginBtn":"إنشاء حساب جديد",
+        "signUp":" تسجيل دخول"
+    }
 }

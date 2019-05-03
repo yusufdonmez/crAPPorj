@@ -35,32 +35,33 @@ export default class HorizontalScrollCards extends React.Component {
 
     render(){
         return (
-        <View style={{marginTop:20,marginBottom:20,backgroundColor:'white'}}>
-            <Text style={{marginLeft:10,fontWeight: '600',marginBottom:5}}>{this.props.headTitle}</Text>
-            <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
-            {this.props.datas.map((item, i) =>
-                <View key={i} style={styles.cardContainer}>
-                    <TouchableOpacity style={{flex:1}} onPress={ () => {this.props.openCarDetailsNav(item)}}>
-                        <Image style={{width:null,height:'80%',resizeMode:'cover'}} source={item.img} ></Image>
-                        <View style={styles.carInfoContainer}>
-                            <View style={{flex:9,marginRight:70}}>
-                                <View style={{flexDirection:'row'}}>
-                                    <Text style={styles.carNameText} ellipsizeMode="tail" numberOfLines={1}>{item.name} </Text>
+            <View style={{marginTop:20,marginBottom:20,backgroundColor:'white'}}>
+                <Text style={{marginLeft:10,fontWeight: '600',marginBottom:5}}>{this.props.headTitle}</Text>
+                <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
+                    {this.props.datas.map((item, i) =>
+                        <View key={`${this.props.headTitle}-${item.id}`}  style={styles.cardContainer}>
+                            <TouchableOpacity style={{flex:1}} onPress={ () => {this.props.openCarDetailsNav(item)}}>
+                                <Image style={{width:null,height:'80%',resizeMode:'cover'}}
+                                        source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}></Image>
+                                <View style={styles.carInfoContainer}>
+                                    <View style={{flex:9,marginRight:70}}>
+                                        <View style={{flexDirection:'row'}}>
+                                            <Text style={styles.carNameText} ellipsizeMode="tail" numberOfLines={1}>{item.Make} {item.Brand} </Text>
+                                            <Text style={{fontSize:12,fontWeight:'600'}}>{item.ModelYear}</Text>
+                                        </View>
+                                        <Text style={styles.tripNumberText}> {item.tripCount} Trip  { this._renderReviewStars(item.NoOfStar) } </Text>
+                                    </View>
+                                    <View style={styles.priceConteiner}>
+                                        <Text style={styles.priceText}>{item.DailyCost}</Text>
+                                        <Text style={styles.normalTextStyle}>SAR</Text>
+                                        <Text style={styles.normalTextStyle}>per day</Text>
+                                    </View>
                                 </View>
-                                <Text style={styles.tripNumberText}> {item.tripNumber} Trip  { this._renderReviewStars(item.star) } </Text>
-                            </View>
-                            <View style={styles.priceConteiner}>
-                                <Text style={styles.priceText}>{item.price}</Text>
-                                <Text style={styles.normalTextStyle}>SAR</Text>
-                                <Text style={styles.normalTextStyle}>per day</Text>
-                            </View>
+                            </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
-                </View>
-                
-            )}
-            </ScrollView>
-        </View>
+                    )}
+                </ScrollView>
+            </View>
         );
     }
 
@@ -114,6 +115,8 @@ const styles = StyleSheet.create({
     priceConteiner:{
         position: "absolute", 
         textAlign:'center',
+        justifyContent:'center',
+        alignItems:'center',
         right: 0, 
         top: -20, 
         backgroundColor: 'white', 

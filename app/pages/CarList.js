@@ -2,49 +2,89 @@ import React, { Component } from "react";
 import {  FlatList,
     StyleSheet,
     Text, 
-    Animated,
-    TouchableOpacity,
+    TouchableHighlight,
     View, 
-    Share,
     Image,
-    AsyncStorage,
-    Alert,
-    TextInput,
-    RefreshControl,
-    BackHandler,
-    SafeAreaView
+    SafeAreaView,
     } from "react-native";
 
-    
 import {Actions} from 'react-native-router-flux'
 import {Container,Content,CardItem,Card,Left,Button,Icon,List,ListItem, Right} from "native-base";
-    
 
-const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
+import MapViewComponent from "./MapViewComponent";
+
+const MyRenderTitle = (
+                        <Button onPress={() => {Actions.SearchModal()}} 
+                                style={{width:'100%',height:'80%',flexDirection:"column",backgroundColor:'gray'}}>
+                            <View>
+                                <Text style={{fontSize:12,fontWeight:'700',color:'white'}}> TEST </Text>
+                            </View>
+                            <View >
+                                <Text style={{fontSize:10,fontWeight:'700',color:'white'}}>Apr 20, 6:00 PM - Apr 26, 10:00 AM</Text>
+                            </View>
+                        </Button>
+                        )
 
 class CarList extends Component {
     constructor(props){
         super(props)
         this.state = {
+            listOrMap:'list',
             refreshing:false,
-            dataSource:[{id:1,img:require('../assets/1.png'),name:'Ford Mustang SRT',owner:'Joey',year:'2018',star:'5',price:55,tripNumber:19,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:2,img:require('../assets/2.png'),name:'Car Name 2',owner:'Joe',year:'2016',star:'2',price:12,tripNumber:3,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:3,img:require('../assets/3.png'),name:'Porche Carerra',owner:'Mike',year:'2018',star:'4',price:45,tripNumber:123,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:4,img:require('../assets/4.png'),name:'Audi RS',owner:'Paul',year:'2013',star:'2',price:56,tripNumber:5,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:5,img:require('../assets/5.png'),name:'Car Name 5',owner:'Frank',year:'2012',star:'5',price:76,tripNumber:574,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:6,img:require('../assets/6.png'),name:'Car Name 6',owner:'Jose',year:'2018',star:'1',price:78,tripNumber:34,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:7,img:require('../assets/7.png'),name:'Car Name 7',owner:'Jack',year:'2018',star:'5',price:90,tripNumber:12,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:8,img:require('../assets/8.png'),name:'Car Name 8',owner:'Lisa',year:'2019',star:'3',price:25,tripNumber:43,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:9,img:require('../assets/9.png'),name:'Car Name 9',owner:'Martin',year:'2018',star:'5',price:49,tripNumber:84,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-            {id:10,img:require('../assets/10.png'),name:'Car Name 10',owner:'Ali',year:'2018',star:'0',price:100,tripNumber:23,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]}],
+            carList:[],
+            northeast:null,
+            southwest:null,
+            searchLat:null,
+            searchLng:null
         }
-
         this._renderReviewStars = this._renderReviewStars.bind(this);
+        this.loadCarList = this.loadCarList.bind(this);
     }
 
-    _onRefresh = () => {
-        this.setState({refreshing: true});
-        this.componentDidMount();
+    componentDidMount(){
+        console.log('CarList.js componentDidMount')
+        let northeast = this.props.geometry.viewport.northeast;
+        let southwest = this.props.geometry.viewport.southwest;
+        
+        this.setState({northeast,southwest});
+        this.loadCarList(northeast.lat,northeast.lng,southwest.lat,southwest.lng,this.props.geometry.location.lat,this.props.geometry.location.lng);
+    }
+
+    loadCarList(northeastLat,northeastLng,southwesLat,southwesLng,searchLat,searchLng){
+        console.log('CarList.js loadCarList => '+ northeastLat +'-'+ northeastLng +'-'+ southwesLat +'-'+ southwesLng +'-'+ searchLat +'-'+ searchLng)
+        this.setState({searchLat,searchLng})
+        let lngMin = northeastLng < southwesLng ? northeastLng : southwesLng;
+        let lngMax = northeastLng < southwesLng ? southwesLng : northeastLng;
+        let latMax = northeastLat < southwesLat ? southwesLat : northeastLat;
+        let latMin = northeastLat < southwesLat ? northeastLat : southwesLat;
+        
+        fetch(global.appAddress + '/service/c1/json/PublicService/carSearch/en_US?latMax='+latMax+'&latMin='+latMin+'&lngMax='+lngMax+'&lngMin='+lngMin,
+        {
+            method: 'GET',
+            credentials: 'include',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('Component Did Mount Data List carSearch: '+ responseJson.items);
+            if( responseJson.items != undefined && responseJson.length != 0 ){
+                this.setState({isLoading:false,
+                            carList: responseJson.items});
+            }
+            else {
+                this.setState({isLoading:false,noRecordsFound:true});
+            }
+        })
+        .catch((error) => {
+            console.error(error.message + ' on CarList at line 68');
+        });
+    }
+
+    renderTitle() {
+        <MyRenderTitle></MyRenderTitle>
     }
 
     _renderReviewStars(star){
@@ -59,42 +99,42 @@ class CarList extends Component {
         return stars
     }
 
-
-
-
     render() {
         return (
             <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
                 <Container style={styles.container}>
                     <Content>
-                        <List  dataArray={this.state.dataSource} renderRow={item => 
-                            <ListItem onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
+                        <List dataArray={this.state.carList} renderRow={item => 
+                            <ListItem key={item.id} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
                                 <Card style={{flex:1,backgroundColor:'white'}}>
                                     <CardItem style={{position:'relative'}} cardBody>
-                                        <Image source={item.img} style={styles.cardImage}/>
+                                        <Image source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}
+                                            style={styles.cardImage}/>
                                         <View style={styles.priceContainer}>
-                                            <Text style={styles.priceText}> {item.price} SAR/Day </Text>
+                                            <Text style={styles.priceText}> {item.DailyCost} SAR/Day </Text>
                                         </View>
                                     </CardItem>
                                     <CardItem style={ { height: 30,marginTop:10 } }>
                                         <Left>
-                                            <Button transparent onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
-                                                <Text style={styles.carNameText}>{item.name.toUpperCase()}</Text>
+                                            <Button transparent onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
+                                                <Text style={styles.carNameText}>{item.Make} {item.Brand} </Text>
+                                                <Text style={styles.yearText}>{item.ModelYear}</Text>
                                             </Button>
                                         </Left>
                                     </CardItem>
                                     <CardItem style={ { height: 20 } }>
                                         <Left>
                                             <Button transparent  onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
-                                                { this._renderReviewStars(item.star) }
-                                                <Text style={styles.tripNumberText}>{item.tripNumber} Trip</Text>
+                                                {item.tripCount != undefined && (
+                                                    <Text style={styles.tripNumberText}>{item.tripCount} Trip { this._renderReviewStars(item.NoOfStar) }</Text>
+                                                )}
                                             </Button>
                                         </Left>
                                     </CardItem>
                                     <CardItem style={ {marginBottom:10,height: 30 } }>
                                         <Left>
                                             <Button small style={ { backgroundColor:'gray',height: 30} }
-                                                    onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
+                                                    onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
                                                 <Text style={styles.specsBtns}>Book Instantly</Text>
                                             </Button>
                                         </Left>
@@ -103,6 +143,20 @@ class CarList extends Component {
                             </ListItem>
                         }/>
                     </Content>
+                    <View style={styles.mapAndFilterContainer}>
+                        <TouchableHighlight onPress={() => {Actions.MapViewComponent({getCarList:this.loadCarList,carList:this.state.carList,lat:this.state.searchLat,lng:this.state.searchLng})}}>
+                            <View style={styles.mapContainer}>
+                                <Icon name='map' style={styles.mapAndFilterImageStyle} ></Icon>
+                                <Text style={styles.mapAndFilterTextStyle}>Map</Text>
+                            </View>
+                        </TouchableHighlight>
+                        <TouchableHighlight onPress={() => {Actions.pop()}}>
+                            <View style={styles.filterContainer}>
+                                <Icon name='search' style={styles.mapAndFilterImageStyle} ></Icon>
+                                <Text style={styles.mapAndFilterTextStyle}>Filters</Text>
+                            </View>
+                        </TouchableHighlight>
+                    </View>
                 </Container>
             </SafeAreaView>
         );
@@ -113,7 +167,8 @@ export default CarList;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor:'white'
+        backgroundColor:'white',
+        position:'relative',
     },
     cardImage: {
         height: 200,
@@ -139,6 +194,12 @@ const styles = StyleSheet.create({
         color:'black',
         fontWeight:'600',
         fontSize:25
+    },
+    yearText: {
+        color:'black',
+        fontWeight:'400',
+        fontSize:16,
+        marginStart:3
     },
     tripNumberText: {
         color:'black',
@@ -169,5 +230,47 @@ const styles = StyleSheet.create({
         color:'black',
         fontWeight: '900',
         padding:8,
+    },
+    mapAndFilterContainer: {
+        position:'absolute',
+        bottom:20,
+        justifyContent: "center",
+        alignItems: 'center',
+        flexDirection: 'row',
+        width:'100%'
+    },
+    mapContainer:{
+        width:100,
+        flexDirection:'row',
+        borderColor:'gray',
+        borderWidth: 1,
+        backgroundColor:'white',
+        padding:10,
+        justifyContent:'center',
+        alignItems: 'center',
+        borderTopStartRadius:20,
+        borderBottomStartRadius:20,
+    },
+    filterContainer:{
+        width:100,
+        flexDirection:'row',
+        borderColor:'gray',
+        borderWidth: 1,
+        backgroundColor:'white',
+        padding:10,
+        justifyContent:'center',
+        alignItems: 'center',
+        borderTopEndRadius:20,
+        borderBottomEndRadius:20,
+    },
+    mapAndFilterTextStyle: {
+        fontSize:14,
+        fontWeight:'700',
+        color:'#404040',
+        paddingStart:10,
+    },
+    mapAndFilterImageStyle:{
+        color:'#404040',
+        fontSize:14
     }
 });

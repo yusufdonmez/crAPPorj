@@ -13,5 +13,11 @@
         "messages":"Messages",
         "host":"Host",
         "profile":"Profile"
+    },
+    "login":{
+        "email":"Email",
+        "password": "Password",
+        "loginBtn":"Sign In",
+        "signUp":"Sign Up"
     }
 }
