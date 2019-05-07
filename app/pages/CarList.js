@@ -2,16 +2,24 @@ import React, { Component } from "react";
 import {  FlatList,
     StyleSheet,
     Text, 
-    TouchableHighlight,
     View, 
     Image,
     SafeAreaView,
+    Dimensions,
     } from "react-native";
 
 import {Actions} from 'react-native-router-flux'
 import {Container,Content,CardItem,Card,Left,Button,Icon,List,ListItem, Right} from "native-base";
 
-import MapViewComponent from "./MapViewComponent";
+import PriceMarker from '../components/AnimatedPriceMarker';
+
+import * as theme from '../assets/theme';
+
+import MapView, {
+    PROVIDER_GOOGLE, Marker, Animated as AnimatedMap,
+    AnimatedRegion
+} from 'react-native-maps'
+import { TouchableWithoutFeedback, TouchableOpacity, TouchableHighlight } from "react-native-gesture-handler";
 
 const MyRenderTitle = (
                         <Button onPress={() => {Actions.SearchModal()}} 
@@ -25,6 +33,18 @@ const MyRenderTitle = (
                         </Button>
                         )
 
+const screen = Dimensions.get('window');
+
+const ASPECT_RATIO = screen.width / screen.height;
+const LATITUDE = 37.78825;
+const LONGITUDE = -122.4324;
+const LATITUDE_DELTA = 0.0922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
+
+const ITEM_SPACING = 10;
+const ITEM_PREVIEW = 10;
+const ITEM_WIDTH = screen.width - (2 * ITEM_SPACING) - (2 * ITEM_PREVIEW);
+const ITEM_PREVIEW_HEIGHT = 150;
 class CarList extends Component {
     constructor(props){
         super(props)
@@ -35,10 +55,20 @@ class CarList extends Component {
             northeast:null,
             southwest:null,
             searchLat:null,
-            searchLng:null
+            searchLng:null,
+            checkScroll:false,
+            region: new AnimatedRegion({
+                latitude: LATITUDE,
+                longitude: LONGITUDE,
+                latitudeDelta: LATITUDE_DELTA,
+                longitudeDelta: LONGITUDE_DELTA,
+            }),
+            mapBoundaries:null,
+            selectedID:-1,
         }
         this._renderReviewStars = this._renderReviewStars.bind(this);
         this.loadCarList = this.loadCarList.bind(this);
+        this.handleScrollDone = this.handleScrollDone.bind(this);
     }
 
     componentDidMount(){
@@ -49,6 +79,8 @@ class CarList extends Component {
         this.setState({northeast,southwest});
         this.loadCarList(northeast.lat,northeast.lng,southwest.lat,southwest.lng,this.props.geometry.location.lat,this.props.geometry.location.lng);
     }
+    
+    //Functions 
 
     loadCarList(northeastLat,northeastLng,southwesLat,southwesLng,searchLat,searchLng){
         console.log('CarList.js loadCarList => '+ northeastLat +'-'+ northeastLng +'-'+ southwesLat +'-'+ southwesLng +'-'+ searchLat +'-'+ searchLng)
@@ -72,7 +104,8 @@ class CarList extends Component {
             console.log('Component Did Mount Data List carSearch: '+ responseJson.items);
             if( responseJson.items != undefined && responseJson.length != 0 ){
                 this.setState({isLoading:false,
-                            carList: responseJson.items});
+                            carList: responseJson.items,
+                            selectedID: -1});
             }
             else {
                 this.setState({isLoading:false,noRecordsFound:true});
@@ -83,6 +116,73 @@ class CarList extends Component {
         });
     }
 
+    handleScroll (event) {
+        console.log('MapViewComponent.js handleScroll'); 
+        if(this.state.checkScroll) {
+            var index = Math.floor(event.nativeEvent.contentOffset.x / screen.width);
+            console.warn('Scroll Index: ' + index);
+            if( index > -1 ) {
+                this.updateRegion(this.state.carList[index].Lat,this.state.carList[index].Lng);
+                this.setState({selectedID: index });
+            }
+        }
+    }
+
+    handleScrollDone(event){
+        console.log('MapViewComponent.js handleScroll'); 
+        if(this.state.checkScroll) {
+            var index = Math.floor(event.nativeEvent.contentOffset.x / screen.width);
+            console.warn('Scroll Index: ' + index);
+            if( index > -1 ) {
+                this.updateRegion(this.state.carList[index].Lat,this.state.carList[index].Lng);
+                this.setState({selectedID: index });
+            }
+            else{
+                index = 0;
+            }
+        }
+    }
+
+    scrollToIndex = (index,lat,lng) => {
+        if(this.state.selectedID == -1) {
+            this.setState({selectedID:index}); //Workaround for first time press marker opening first car always
+            this.flatListRef.scrollToIndex({animated: true, index: index});
+        }
+        this.setState({selectedID:index})
+        this.flatListRef.scrollToIndex({animated: true, index: index});
+        this.updateRegion(lat,lng); 
+    }
+
+    updateRegion(lat,lng){
+        console.log('MapViewComponent.js updateRegion =>' + lat + '-' + lng ); 
+        var newRegion = {
+            latitude: lat,
+            longitude:lng,
+            latitudeDelta: 0.0922,
+            longitudeDelta: 0.0922 * screen.width / screen.height,
+        }
+        this.setState({region: newRegion})
+    }
+
+    searchThisLocation(){
+        console.log('MapViewComponent.js searchThisLocation => ' + this.state.region.latitude + '-' + this.state.region.longitude); 
+        var boundaries = this.state.mapBoundaries._55;
+        this.loadCarList(boundaries.northEast.latitude,
+                            boundaries.northEast.longitude,
+                            boundaries.southWest.latitude,
+                            boundaries.southWest.longitude,
+                            this.state.region.latitude,
+                            this.state.region.longitude);
+    }
+
+    onRegionChangeComplete = (region) => {
+        this.setState({
+            mapBoundaries: this.map.getMapBoundaries(),
+            region
+        });
+    } 
+
+    // Render Functions
     renderTitle() {
         <MyRenderTitle></MyRenderTitle>
     }
@@ -99,63 +199,167 @@ class CarList extends Component {
         return stars
     }
 
+    _renderItem = ({item}) => (
+        <TouchableWithoutFeedback 
+            key={`car-${item.id}`} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))} >
+            <View style={[styles.car, styles.shadow]}>
+                <View style={styles.carInfoContainer}>
+                    <View style={styles.carImage}>
+                        <Image style={styles.horizontalCardImage}
+                            source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}/>
+                    </View>
+                    <View style={styles.carInfo}>
+                        <View style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <View>
+                                <Text style={{fontSize:18,textTransform: 'uppercase',fontWeight: '900'}}>{item.Make} {item.Brand} </Text>
+                                <Text style={{fontSize:14,fontWeight: '700'}}>{item.ModelYear}</Text>
+                            </View>
+                            <View style={{flexDirection:'row'}}>
+                                <Text style={styles.tripNumberText}> 
+                                    {item.tripCount} Trip { this._renderReviewStars(item.NoOfStar) }
+                                </Text>
+                            </View>
+                            <Text style={{fontWeight:'600'}} >
+                                {item.DailyCost} SAR per day
+                            </Text>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        </TouchableWithoutFeedback>
+    )
+
+    renderCarHorizontal = () => {
+        return (
+            <FlatList
+                ref={(ref) => { this.flatListRef = ref; }}
+                style={[styles.carsList, this.state.selectedID == -1 ? {bottom: -500}: {bottom:0}]} 
+                horizontal={true}
+                data={this.state.carList}
+                extraData={this.state}
+                renderItem={this._renderItem}
+                pagingEnabled={true}
+                keyExtractor={(item, index) => index}
+                scrollEventThrottle={1}
+                onScrollBeginDrag={() => (this.setState({checkScroll:true}))}
+                onScrollEndDrag={this.handleScrollDone}
+            />
+        )
+    }
+
+    renderSearchButton = () => {
+        return (
+            <View style={styles.searchButtonContainer}>
+                <Button style={styles.searchBtn} onPress={() => this.searchThisLocation()}>
+                    <Text style={{color:'black',textAlign:'center'}}>Search here</Text>
+                </Button>
+            </View>
+        )
+    }
+
     render() {
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container style={styles.container}>
-                    <Content>
-                        <List dataArray={this.state.carList} renderRow={item => 
-                            <ListItem key={item.id} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
-                                <Card style={{flex:1,backgroundColor:'white'}}>
-                                    <CardItem style={{position:'relative'}} cardBody>
-                                        <Image source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}
-                                            style={styles.cardImage}/>
-                                        <View style={styles.priceContainer}>
-                                            <Text style={styles.priceText}> {item.DailyCost} SAR/Day </Text>
-                                        </View>
-                                    </CardItem>
-                                    <CardItem style={ { height: 30,marginTop:10 } }>
-                                        <Left>
-                                            <Button transparent onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
-                                                <Text style={styles.carNameText}>{item.Make} {item.Brand} </Text>
-                                                <Text style={styles.yearText}>{item.ModelYear}</Text>
-                                            </Button>
-                                        </Left>
-                                    </CardItem>
-                                    <CardItem style={ { height: 20 } }>
-                                        <Left>
-                                            <Button transparent  onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
-                                                {item.tripCount != undefined && (
-                                                    <Text style={styles.tripNumberText}>{item.tripCount} Trip { this._renderReviewStars(item.NoOfStar) }</Text>
-                                                )}
-                                            </Button>
-                                        </Left>
-                                    </CardItem>
-                                    <CardItem style={ {marginBottom:10,height: 30 } }>
-                                        <Left>
-                                            <Button small style={ { backgroundColor:'gray',height: 30} }
-                                                    onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
-                                                <Text style={styles.specsBtns}>Book Instantly</Text>
-                                            </Button>
-                                        </Left>
-                                    </CardItem>
-                                </Card>
-                            </ListItem>
-                        }/>
-                    </Content>
-                    <View style={styles.mapAndFilterContainer}>
-                        <TouchableHighlight onPress={() => {Actions.MapViewComponent({getCarList:this.loadCarList,carList:this.state.carList,lat:this.state.searchLat,lng:this.state.searchLng})}}>
-                            <View style={styles.mapContainer}>
-                                <Icon name='map' style={styles.mapAndFilterImageStyle} ></Icon>
-                                <Text style={styles.mapAndFilterTextStyle}>Map</Text>
+                    {this.state.listOrMap == 'list' && (
+                        <Content>
+                            <List dataArray={this.state.carList} renderRow={item => 
+                                <ListItem key={item.id} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
+                                    <Card style={{flex:1,backgroundColor:'white'}}>
+                                        <CardItem style={{position:'relative'}} cardBody>
+                                            <Image source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}
+                                                style={styles.cardImage}/>
+                                            <View style={styles.priceContainer}>
+                                                <Text style={styles.priceText}> {item.DailyCost} SAR/Day </Text>
+                                            </View>
+                                        </CardItem>
+                                        <CardItem style={ { height: 30,marginTop:10 } }>
+                                            <Left>
+                                                <Button transparent onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
+                                                    <Text style={styles.carNameText}>{item.Make} {item.Brand} </Text>
+                                                    <Text style={styles.yearText}>{item.ModelYear}</Text>
+                                                </Button>
+                                            </Left>
+                                        </CardItem>
+                                        <CardItem style={ { height: 20 } }>
+                                            <Left>
+                                                <Button transparent  onPress={() => (Actions.CarDetails({title:item.name,itemDetails:item}))}>
+                                                    {item.tripCount != undefined && (
+                                                        <Text style={styles.tripNumberText}>{item.tripCount} Trip { this._renderReviewStars(item.NoOfStar) }</Text>
+                                                    )}
+                                                </Button>
+                                            </Left>
+                                        </CardItem>
+                                        <CardItem style={ {marginBottom:10,height: 30 } }>
+                                            <Left>
+                                                <Button small style={ { backgroundColor:'gray',height: 30} }
+                                                        onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))}>
+                                                    <Text style={styles.specsBtns}>Book Instantly</Text>
+                                                </Button>
+                                            </Left>
+                                        </CardItem>
+                                    </Card>
+                                </ListItem>
+                            }/>
+                        </Content>
+                    )}
+                    {this.state.listOrMap == 'map' && (
+                        <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
+                            <View style={{ flex: 1 }}>
+                                <MapView
+                                    provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+                                    style={styles.map}
+                                    ref={ref => { this.map= ref; }}
+                                    region={this.state.region}
+                                    onRegionChangeComplete={region => this.onRegionChangeComplete(region)}
+                                >
+                                    {this.state.carList.map((marker, index) => {
+                                        return (
+                                            <Marker
+                                                style={{zIndex: index === this.state.selectedID ? 10000 : 1}}
+                                                key={marker.id}
+                                                coordinate={{
+                                                            latitude: marker.Lat,
+                                                            longitude: marker.Lng,
+                                                        }}
+                                                onPress={() => { this.setState({checkScroll:false});this.scrollToIndex(index,marker.Lat,marker.Lng); }}
+                                            >
+                                                <PriceMarker
+                                                    amount={marker.DailyCost}
+                                                    selected={ index === this.state.selectedID ? true : false}
+                                                />
+                                            </Marker>
+                                        );
+                                    })}
+                                </MapView>
+                                {this.renderCarHorizontal()}
+                                {this.renderSearchButton()}
                             </View>
-                        </TouchableHighlight>
-                        <TouchableHighlight onPress={() => {Actions.pop()}}>
+                        </SafeAreaView>
+                    )}
+                    <View style={[styles.mapAndFilterContainer,this.state.selectedID == -1 || this.state.listOrMap == 'list' ? {bottom: 20}: {bottom:100}]}>
+                        {this.state.listOrMap == 'list' && (
+                            <TouchableWithoutFeedback onPress={() => { this.setState({listOrMap:'map'}); this.updateRegion(this.state.searchLat,this.state.searchLng); }}>
+                                <View style={styles.mapContainer}>
+                                    <Icon name='map' style={styles.mapAndFilterImageStyle} ></Icon>
+                                    <Text style={styles.mapAndFilterTextStyle}>Map</Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        )}
+                        {this.state.listOrMap == 'map' && (
+                            <TouchableWithoutFeedback onPress={() => { this.setState({listOrMap:'list'}); this.updateRegion(this.state.searchLat,this.state.searchLng); }}>
+                                <View style={styles.mapContainer}>
+                                    <Icon name='map' style={styles.mapAndFilterImageStyle} ></Icon>
+                                    <Text style={styles.mapAndFilterTextStyle}>List</Text>
+                                </View>
+                            </TouchableWithoutFeedback>
+                        )}
+                        <TouchableWithoutFeedback onPress={() => {Actions.pop()}}>
                             <View style={styles.filterContainer}>
                                 <Icon name='search' style={styles.mapAndFilterImageStyle} ></Icon>
                                 <Text style={styles.mapAndFilterTextStyle}>Filters</Text>
                             </View>
-                        </TouchableHighlight>
+                        </TouchableWithoutFeedback>
                     </View>
                 </Container>
             </SafeAreaView>
@@ -233,7 +437,6 @@ const styles = StyleSheet.create({
     },
     mapAndFilterContainer: {
         position:'absolute',
-        bottom:20,
         justifyContent: "center",
         alignItems: 'center',
         flexDirection: 'row',
@@ -272,5 +475,114 @@ const styles = StyleSheet.create({
     mapAndFilterImageStyle:{
         color:'#404040',
         fontSize:14
+    },
+    //Map View style start
+
+    mapStyle: {
+        width: '100%',
+        height: '100%'
+    },
+    map: {
+        ...StyleSheet.absoluteFillObject,
+    },
+    markerStyle: {
+        backgroundColor: 'white',
+        padding: 5,
+        borderRadius: 5
+    },
+
+    itemContainer: {
+        backgroundColor: 'transparent',
+        flexDirection: 'row',
+        paddingHorizontal: (ITEM_SPACING / 2) + ITEM_PREVIEW,
+        position: 'absolute',
+        // top: screen.height - ITEM_PREVIEW_HEIGHT - 64,
+        paddingTop: screen.height - ITEM_PREVIEW_HEIGHT - 64,
+        // paddingTop: !ANDROID ? 0 : screen.height - ITEM_PREVIEW_HEIGHT - 64,
+    },
+    item: {
+        width: ITEM_WIDTH,
+        height: screen.height + (2 * ITEM_PREVIEW_HEIGHT),
+        backgroundColor: 'red',
+        marginHorizontal: ITEM_SPACING / 2,
+        overflow: 'hidden',
+        borderRadius: 3,
+        borderColor: '#000',
+    },
+    carsList: {
+        position: 'absolute',
+        right: 0,
+        left: 0,
+        paddingBottom: 5,
+    },
+    horizontalCardImage: {
+        height: 90,
+        width: '100%', 
+        flex: 1,
+        borderRadius:5
+    },
+    carImage:{
+        flex:1
+    },
+    car: {
+        flexDirection: 'row',
+        backgroundColor: theme.COLORS.white,
+        borderRadius: 5,
+        marginHorizontal: theme.SIZES.base * 2,
+        width: screen.width - (24 * 2),
+    },
+    carInfoContainer: { 
+        flex: 1.5, 
+        flexDirection: 'row' 
+    },
+    carInfo: {
+        flex:1,
+        justifyContent: 'space-evenly',
+        marginHorizontal: theme.SIZES.base * 1.5,
+    },
+    carIcon: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+    },
+    tripNumberText: {
+        color:'black',
+        fontWeight:'600',
+        fontSize:13,
+        marginStart:10
+    },
+    mapAndFilterTextStyle: {
+        fontSize:14,
+        fontWeight:'700',
+        color:'#404040',
+        paddingStart:10,
+    },
+    mapAndFilterImageStyle:{
+        color:'#404040',
+        fontSize:14
+    },
+    reviewStar: {
+        color:'red',
+        fontSize:10,
+        marginEnd:3
+    },
+    searchButtonContainer: {
+        position:'absolute',
+        top: 20,
+        width:'100%',
+        justifyContent:'center',
+        alignItems:'center',
+        flexDirection: 'row'
+    },
+    searchBtn: {
+        padding:10,
+        width:100,
+        opacity: 0.7,
+        backgroundColor: 'white',
+        justifyContent:'center',
+        alignItems:'center',
+        borderColor:'gray',
+        borderWidth: 1,
+        borderRadius: 20
     }
+
 });

@@ -1,19 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import {
   StyleSheet,
   Text,
   Animated,
 } from 'react-native';
+import * as theme from '../assets/theme'
 
 class AnimatedPriceMarker extends React.Component {
   render() {
     const { amount,selected , style } = this.props;
 
-    const background = selected ? '#5bd88c' :  '#231f20' ;
+    const background = selected ? theme.COLORS.mapPinActive :  theme.COLORS.mapPinPassive ;
 
-    const border = selected ?  '#5bd88c' :  '#231f20';
+    const border = selected ?  theme.COLORS.mapPinActive :  theme.COLORS.mapPinPassive;
     
     const color = selected ?  'black' :  'white';
 

@@ -6,9 +6,8 @@ import {
 } from "react-native";
 import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
 import { Actions } from "react-native-router-flux";
-
 import { Icon, Button } from 'native-base';
-
+import * as theme from '../assets/theme'
 class SearchModal extends Component {
     constructor(props){
         super(props)
@@ -17,7 +16,7 @@ class SearchModal extends Component {
     }
     render() {
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Button transparent onPress={() => {Actions.HomeScreen();}} style={{width:'100%'}}>
                     <Icon name="close" size={22} style={{padding:10,color:'white'}} />
                 </Button>

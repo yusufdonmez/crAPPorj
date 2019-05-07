@@ -5,6 +5,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Image,
+    Alert,
     SafeAreaView,
     ImageBackground,
     Dimensions,
@@ -15,6 +16,9 @@ import { strings } from '../locales/i18n';
 import { Actions } from 'react-native-router-flux';
 import { Button, Left, Body, Right, Item, Input, Form, Content, Label, CheckBox } from "native-base";
 import { TextInput } from "react-native-gesture-handler";
+import Spinner from './Spinner';
+
+import * as theme from '../assets/theme';
 
 const {width,height} = Dimensions.get('window');
 
@@ -25,13 +29,181 @@ class SignIn extends Component {
         this.state = {
             userName:'',
             password:'',
+            signUpUserName:'',
+            signUpName:'',
+            signUpPassword:'',
+			spinnerCheck:false,
             displaySignIn:'false',
             displaySignUp:'false'
         }
+		this.handleLogin = this.handleLogin.bind(this);
+		this.forgotPassword = this.forgotPassword.bind(this);
+		this.handleSignUp = this.handleSignUp.bind(this);
     }
+    handleLogin(userName,password) {
+		if( userName == '' )  {
+			this.userNameTextInput.focus();
+		}
+		else if( password == '' ){
+			this.passwordTextInput.focus();
+		}
+		else {
+			this.setModalVisible(true);
+			fetch( global.appAddress + '/loginServlet', {
+				method: 'POST',
+				credentials: 'include',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					userName:userName,
+					password:password,
+				}),
+				}).then((response) => response.json())
+				.then((responseJson) => {
+					console.log(responseJson);
+					if(responseJson.success) {
+						global.userSecStamp = responseJson.userSecStamp;
+						global.userEmail = responseJson.userEmail;
+						global.userAvatar = responseJson.userAvatar;
+						global.userId = responseJson.userId;
+						global.isLogin = responseJson.success;
+						this.setState({isLogin:true});
+						try {
+							AsyncStorage.setItem('@MySuperStore:userName', this.state.userName);						
+							AsyncStorage.setItem('@MySuperStore:password', this.state.password);
+						} catch (error) {
+							// Error saving data
+						}    
+						console.log("Signed IN");
+						Actions.HomeScreen();
+					}
+					else if(responseJson.errorMsg == 'Email Not Exists'){
+						Alert.alert(
+							strings('alerts.emailNotExistsAlertHeader'),
+							strings('alerts.emailNotExistsAlertSubHeader'),
+							[
+								{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);}}
+							],
+							{ cancelable: false }
+						);
+					}
+					else {
+						Alert.alert(
+							strings('alerts.loginFailAlertHeader'),
+							strings('alerts.loginFailAlertSubHeader'),
+							[
+								{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.userNameTextInput.focus();}}
+							],
+							{ cancelable: false }
+						);
+					}
+				return true;
+				})
+				.catch((error) => {
+					console.error(error);
+				});
+		}
+    }
+    
+    setModalVisible(visible) {
+        this.setState({spinnerCheck: visible});
+    }
+    
+    handleSignUp(userEmail,Name,password){
+		this.setModalVisible(true);
+		fetch(global.appAddress + '/service/c1/json/PublicService/signupUser/en_US',
+        {
+            credentials: 'include',
+            method: 'POST',
+            headers: { 
+                Accept: 'application/json',
+                'Content-Type': 'application/json' 
+            },
+            body: JSON.stringify({
+                email: userEmail,
+				password: password,
+				fullName: Name,
+			})
+        })
+        .then((response) => response.json())
+		.then((responseJson) => {
+			if(responseJson.errorMsg == 'Email Exists'){
+				Alert.alert(
+					strings('alerts.emailExistsAlertHeader'),
+					strings('alerts.emailExistsAlertSubHeader'),
+					[
+						{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({isSignUp:false})}}
+					],
+					{ cancelable: false }
+				);
+			}
+			else {
+				Alert.alert(
+					strings('alerts.signupCompletedHeader'),
+					strings('alerts.signupCompletedSubHeader'),
+					[
+						{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({ isSignUp: false }) } }
+					],
+					{ cancelable: false }
+				);
+			}
+		})
+        .catch((error) =>{
+            console.error(error);
+        });
+	}
+    forgotPassword(userEmail){
+		if( userEmail == '' )  {
+			Alert.alert(
+				strings('alerts.emailEmptyHeader'),
+				strings('alerts.emailEmptySubHeader'),
+				[
+					{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({ isSignUp: false }) } }
+				],
+				{ cancelable: false }
+			);
+		}
+		else {
+			this.setModalVisible(true);
+			fetch( global.appAddress + '/loginServlet?userName='+userEmail+'&forgetPassword=true', {
+				method: 'GET',
+				credentials: 'include',
+			}).then((response) => response.json())
+			.then((responseJson) => {
+				if(responseJson.success) {
+					Alert.alert(
+						strings('alerts.emailSentHeader'),
+						strings('alerts.emailSentSubHeader')  + userEmail,
+						[
+							{text: strings('alerts.okey'), onPress: () => { this.setModalVisible(false)  } }
+						],
+						{ cancelable: false }
+					);
+				}
+				else {
+					Alert.alert(
+						strings('alerts.emailNotExistsAlertHeader'),
+						strings('alerts.emailNotExistsAlertSubHeader'),
+						[
+							{text: strings('alerts.okey'), onPress: () => { this.setModalVisible(false)  } }
+						],
+						{ cancelable: false }
+					);
+				}
+				return responseJson;
+			})
+			.catch((error) => {
+				console.error(error);
+			});
+		}
+    }
+
     render() {
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
+                <Spinner visible={this.state.spinnerCheck} textContent={strings('login.authenticating')} ></Spinner>							
                 <View style={styles.container}>
                     <ImageBackground source={require('../assets/caravan.jpg')} style={styles.backgroundImage}>
                     {this.state.displaySignIn == 'false' && this.state.displaySignUp == 'false' && (
@@ -76,25 +248,25 @@ class SignIn extends Component {
                                                 <Label style={{color:'white',fontWeight:'900'}}>EMAIL LOG IN</Label>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
-                                                <Label style={{color:'gray',fontWeight:'900'}}>Email</Label>
+                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.email._root.focus()}}>Email</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='next'
                                                     onChangeText={(text) => this.setState({userName:text})}
                                                     ref={(input) => { this.email = input; }}
                                                     onSubmitEditing={() => { this.password._root.focus(); }}/>
                                             </Item>
-                                            <Item inlineLabel last placeholderTextColor='white'>
+                                            <Item inlineLabel last placeholderTextColor='white' onPress={() => {this.password._root.focus()}}>
                                                 <Label style={{color:'gray',fontWeight:'900'}}>Password</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='done' secureTextEntry
                                                     onChangeText={(text) => this.setState({password:text})}
                                                     ref={(input) => { this.password = input; }}/>
                                             </Item>
-                                            <Button block style={{backgroundColor: '#5bd88c',margin:10}}>
+                                            <Button block style={{backgroundColor: theme.COLORS.Primary,margin:10}} onPress={() => {this.handleLogin(this.state.userName,this.state.password)}}>
                                                 <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>
                                                     Log in with email
                                                 </Text>
                                             </Button>
-                                            <Button transparent block style={{margin:10}}>
-                                                <Text style={{color:'#5bd88c',fontSize:20,fontWeight:'900'}}>
+                                            <Button transparent block style={{margin:10}} onPress={() => {this.forgotPassword(this.state.userName)}}>
+                                                <Text style={{color:theme.COLORS.Primary,fontSize:20,fontWeight:'900'}}>
                                                     Forgot password?
                                                 </Text>
                                             </Button>
@@ -104,7 +276,7 @@ class SignIn extends Component {
                             </View>
                             <View style={styles.termsAndPolicy}>
                                 <Button transparent full>
-                                    <Text style={{color:'#5bd88c',alignItems:'center',textAlign:'center'}}>
+                                    <Text style={styles.termsAndPolicyText}>
                                         By logging in, you agree to our terms of service and privacy policy.
                                     </Text>
                                 </Button> 
@@ -136,46 +308,48 @@ class SignIn extends Component {
                                                 <Label style={{color:'white',fontWeight:'900'}}>EMAIL SIGN UP</Label>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
-                                                <Label style={{color:'gray',fontWeight:'900'}}>Email</Label>
+                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.signUpEmail._root.focus()}}>Email</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='next'
                                                     onChangeText={(text) => this.setState({signUpUserName:text})}
                                                     ref={(input) => { this.signUpEmail = input; }}
                                                     onSubmitEditing={() => { this.signUpName._root.focus(); }}/>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
-                                                <Label style={{color:'gray',fontWeight:'900'}}>Name</Label>
+                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.signUpName._root.focus()}}>Name</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='next'
                                                     onChangeText={(text) => this.setState({signUpName:text})}
                                                     ref={(input) => { this.signUpName = input; }}
                                                     onSubmitEditing={() => { this.signUpPassword._root.focus(); }}/>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
-                                                <Label style={{color:'gray',fontWeight:'900'}}>Password</Label>
+                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.signUpPassword._root.focus()}}>Password</Label>
                                                 <Input style={styles.inputStyle} secureTextEntry returnKeyType='done'
-                                                    onChangeText={(text) => this.setState({signUpName:text})}
+                                                    onChangeText={(text) => this.setState({signUpPassword:text})}
                                                     ref={(input) => { this.signUpPassword = input; }}
-                                                    onSubmitEditing={() => { this.signUpPassword._root.focus(); }} />
+                                                />
                                             </Item>
                                             <Item style={{paddingTop:10,paddingBottom:10,width:'100%'}}>
-                                                <CheckBox checked={true} color='#5bd88c' />
+                                                <CheckBox checked={true} color={theme.COLORS.Primary} />
                                                 <Body>
                                                     <Text style={{flex:1,color:'white',fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                         I Agree to the terms of service and privacy policy
                                                     </Text> 
-                                                    <Text style={{flex:1,color:"#5bd88c",fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
+                                                    <Text style={{flex:1,color:theme.COLORS.Primary,fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                         I Agree to the terms of service and privacy policy
                                                     </Text>
                                                 </Body>
                                             </Item>
                                             <Item style={{paddingTop:10,paddingBottom:10,width:'100%'}}>
-                                                <CheckBox checked={true}  color='#5bd88c'/>
+                                                <CheckBox checked={true}  color={theme.COLORS.Primary}/>
                                                 <Body>
                                                     <Text style={{flex:1,color:'white',fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                     Yes, send me deals, discounts, and updates!
                                                     </Text> 
                                                 </Body>
                                             </Item>
-                                            <Button block style={{backgroundColor: '#5bd88c',margin:10}}>
+                                            <Button block style={{backgroundColor: theme.COLORS.Primary,margin:10}}
+                                                    onChangeText={(text) => this.setState({signUpUserName:text})}
+                                                    onPress={ () => { this.handleSignUp(this.state.signUpUserName,this.state.signUpName,this.state.signUpPassword) } }>
                                                 <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>
                                                     Sign Up
                                                 </Text>
@@ -225,7 +399,7 @@ const styles = StyleSheet.create({
     },
     signUpBtn:{
         marginBottom:25,
-        backgroundColor: '#5bd88c'
+        backgroundColor: theme.COLORS.Secondary
     },
     signInBtn:{
         marginBottom:25,
@@ -241,7 +415,9 @@ const styles = StyleSheet.create({
         paddingBottom:10
     },
     termsAndPolicyText:{
-        color:'white',
+        color:theme.COLORS.Secondary,
+        alignItems:'center',
+        textAlign:'center'
     },
     userNameContainer: {
         flex:1,

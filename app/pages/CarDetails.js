@@ -18,6 +18,8 @@ import PickupAndReturn from '../SubPages/PickupAndReturn'
 import {Container,Content,Left,Button,Icon,Grid, Row,Body, Right, Header, ListItem, Thumbnail} from "native-base";
 import { TouchableOpacity, TouchableHighlight } from "react-native-gesture-handler";
 
+import * as theme from '../assets/theme'
+
 const {width,height} = Dimensions.get('window')
 
 
@@ -96,7 +98,7 @@ class CarDetails extends Component {
     render() {
         const data = this.state.carDetails;
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container style={styles.fill}>
                     <Content>
                         <Grid >
@@ -161,7 +163,7 @@ class CarDetails extends Component {
                                     <Text>Fri, Mar 22, 10:00 AM</Text>
                                 </Body>
                                 <Right style={styles.changeBtnContainer}>
-                                    <Text style={{color:global.programSecondaryColor}}> Change > </Text>
+                                    <Text style={{color:theme.COLORS.Secondary}}> Change > </Text>
                                 </Right>
                             </Row>
 
@@ -178,7 +180,7 @@ class CarDetails extends Component {
                                         <Text>{this.props.address}</Text>
                                     </Body>
                                     <Right style={styles.changeBtnContainer}>
-                                        <Text style={{color:global.programSecondaryColor}}> Change > </Text>
+                                        <Text style={{color:theme.COLORS.Secondary}}> Change > </Text>
                                     </Right>
                                 </Row>
                             </TouchableHighlight>
@@ -254,7 +256,7 @@ class CarDetails extends Component {
                             <Row avatar  style={{padding:10}} onPress={() => {Actions.ProfilePage();}}>
                                 <View style={{flex:1,alignItems:'flex-start'}}>
                                     <Text style={{fontWeight: '600',color:'gray'}}>OWNED BY</Text>
-                                    <Text style={{fontWeight: '600',fontSize:30,color:global.programSecondaryColor}}>William L.</Text>
+                                    <Text style={{fontWeight: '600',fontSize:30,color:theme.COLORS.Secondary}}>William L.</Text>
                                     <View style={{flexDirection: 'row'}}>
                                         { this._renderReviewStars(4) }
                                     </View>
@@ -408,8 +410,8 @@ const styles = StyleSheet.create({
         margin:15,
         borderWidth: 1,
         borderRadius: 5,
-        borderColor:'#5bd88c',
-        backgroundColor: '#5bd88c'
+        borderColor:theme.COLORS.Primary,
+        backgroundColor: theme.COLORS.Primary
     },
     checkoutText: {
         justifyContent: 'center', 

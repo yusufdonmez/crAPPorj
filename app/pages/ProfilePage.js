@@ -8,6 +8,8 @@ import { Actions } from "react-native-router-flux";
 import { Container, Content, Thumbnail, Grid, Row, Left, Body, Right, Icon, Button } from "native-base";
 import { TouchableHighlight, TouchableOpacity } from "react-native-gesture-handler";
 
+import * as theme from '../assets/theme'
+
     var createRightButton = function() {
         return (
             <TouchableHighlight onPress={() => {this.editProfileModal()} }>
@@ -30,7 +32,7 @@ class ProfilePage extends Component {
         return (
             <Container>
                 <Content>
-                    <View style={{height:100,flex:1,width: '100%',backgroundColor: global.programPrimaryColor}}>
+                    <View style={{height:100,flex:1,width: '100%',backgroundColor: theme.COLORS.Primary}}>
                     </View> 
                     <View  style={{alignItems: 'center'}}>
                         <View style={{top:-45,flexDirection: "column", alignItems: 'center'}}>
@@ -50,7 +52,7 @@ class ProfilePage extends Component {
                             <Body></Body>
                             <Right paddingRight={10}>
                                 {/* Need to switch between icons */}
-                                <Icon name="checkmark-circle-outline" size={24} style={{color:'#5bd88c'}}></Icon>
+                                <Icon name="checkmark-circle-outline" size={24} style={{color:theme.COLORS.Secondary}}></Icon>
                             </Right>
                         </Row>
                         <Row style={{paddingTop:15}} >
@@ -60,7 +62,7 @@ class ProfilePage extends Component {
                             <Body></Body>
                             <Right paddingRight={10}>
                                 {/* Need to switch between icons */}
-                                <Icon name="checkmark-circle-outline" size={24} style={{color:'#5bd88c'}}></Icon>
+                                <Icon name="checkmark-circle-outline" size={24} style={{color:theme.COLORS.Secondary}}></Icon>
                             </Right>
                         </Row>
                         <Row style={styles.titleContainer} >

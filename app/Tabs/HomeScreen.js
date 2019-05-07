@@ -13,6 +13,7 @@ import HorizontalScrollCards from '../components/HorizontalScrollCards'
 import { strings } from '../locales/i18n';
 import Destinations from '../components/Destinations';
 import { Button, Icon } from 'native-base';
+import * as theme from '../assets/theme'
 
 class HomeScreen extends Component {
     constructor(props){
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         padding:20,
         marginTop:50,
-        borderTopColor: '#5bd88c',
+        borderTopColor: theme.COLORS.Secondary,
         borderTopWidth: 2,
     }
 });

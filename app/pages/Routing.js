@@ -35,6 +35,8 @@ import { Icon, Button } from 'native-base';
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import SearchModal from '../Modals/SearchModal';
 
+import * as theme from '../assets/theme'
+
 const dimen = Dimensions.get('window');
 
 class Routing extends Component {
@@ -48,7 +50,7 @@ class Routing extends Component {
 		return (
 			<Router 
 				navBarButtonColor='white'
-				navigationBarStyle={{ backgroundColor: global.programPrimaryColor }}>
+				navigationBarStyle={{ backgroundColor: theme.COLORS.Primary }}>
 				<Modal  hideNavBar>
 					<Scene key="root" backTitleEnabled={false}>
 					{/* Tab Container */}
@@ -58,27 +60,27 @@ class Routing extends Component {
 						backTitleEnabled={false}
 						hideNavBar
 						inactiveTintColor='white'
-						activeTintColor={global.programSecondaryColor}
-						tabBarStyle={{ backgroundColor: global.programPrimaryColor,color:'white' }}>
+						activeTintColor={theme.COLORS.Secondary}
+						tabBarStyle={{ backgroundColor: theme.COLORS.Primary,color:'white' }}>
 
 							{/* Tabs */}
 							<Scene key="HomeScreen" title={strings('tabs.search')} component={HomeScreen} hideNavBar initial={true} onEnter={() => {Actions.refs.HomeScreen.scrollTop();}}
-								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='search' color={focused ? global.programSecondaryColor : 'white'} size={24} />)} />
+								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='search' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 						
 							<Scene key="Trips" title={strings('tabs.trips')} title="TRIPS" wrap component={TripsPage}
-								backTitleEnabled={false} tabBarOnPress={() => { this.props.SignedIn ? Actions.Trips() : Actions.SignIn() }}
-								icon={({ focused }) => (<FontAwesomeIcon name='road' color={focused ? global.programSecondaryColor : 'white'} size={24} />)} />
+								backTitleEnabled={false} tabBarOnPress={() => { global.isLogin ? Actions.Trips() : Actions.SignIn() }}
+								icon={({ focused }) => (<FontAwesomeIcon name='road' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 							<Scene key="Messages" title={strings('tabs.messages')} component={MessagesPage} wrap
-								backTitleEnabled={false} tabBarOnPress={() => { this.props.SignedIn ? Actions.Messages() : Actions.SignIn() }}
-								icon={({ focused }) => (<FontAwesomeIcon name='comments' color={focused ? global.programSecondaryColor : 'white'} size={24} />)} />
+								backTitleEnabled={false} tabBarOnPress={() => { global.isLogin ? Actions.Messages() : Actions.SignIn() }}
+								icon={({ focused }) => (<FontAwesomeIcon name='comments' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 							<Scene key="Host" title={strings('tabs.host')} component={HostPage} wrap
-								backTitleEnabled={false} tabBarOnPress={() => { this.props.SignedIn ? Actions.Host() : Actions.SignIn() }}
-								icon={({ focused }) => (<FontAwesomeIcon name='car' color={focused ? global.programSecondaryColor : 'white'} size={24} />)} />
+								backTitleEnabled={false} tabBarOnPress={() => { global.isLogin ? Actions.Host() : Actions.SignIn() }}
+								icon={({ focused }) => (<FontAwesomeIcon name='car' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 							<Scene key="Profile" title={strings('tabs.profile')} component={ProfileTab} wrap
-								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='user' color={focused ? global.programSecondaryColor : 'white'} size={24} />)} />
+								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='user' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 						</Scene>
 

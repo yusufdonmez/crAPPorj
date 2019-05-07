@@ -36,12 +36,7 @@ const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const ITEM_SPACING = 10;
 const ITEM_PREVIEW = 10;
 const ITEM_WIDTH = screen.width - (2 * ITEM_SPACING) - (2 * ITEM_PREVIEW);
-const SNAP_WIDTH = ITEM_WIDTH + ITEM_SPACING;
 const ITEM_PREVIEW_HEIGHT = 150;
-const SCALE_END = screen.width / ITEM_WIDTH;
-const BREAKPOINT1 = 246;
-const BREAKPOINT2 = 350;
-const ONE = new Animated.Value(1);
 
 class MapViewComponent extends Component {
     constructor(props) {
@@ -161,7 +156,7 @@ class MapViewComponent extends Component {
             </TouchableWithoutFeedback>
     )
 
-    renderCarList = () => {
+    renderCarHorizontal = () => {
         return (
             <FlatList
                 ref={(ref) => { this.flatListRef = ref; }}
@@ -192,7 +187,7 @@ class MapViewComponent extends Component {
     render() {
         console.log('MapViewComponent.js render');    
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <View style={{ flex: 1 }}>
                     <MapView
                         provider={PROVIDER_GOOGLE} // remove if not using Google Maps
@@ -220,7 +215,7 @@ class MapViewComponent extends Component {
                             );
                         })}
                     </MapView>
-                    {this.renderCarList()}
+                    {this.renderCarHorizontal()}
                     {this.renderSearchButton()}
                 </View>
             </SafeAreaView>

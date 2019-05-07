@@ -26,6 +26,6 @@ export default class App extends React.Component {
 
 
   render() {
-    return <Routing SignedIn = {this.state.signedIn} />;
+    return <Routing />;
   }
 }

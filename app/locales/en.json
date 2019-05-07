@@ -18,6 +18,30 @@
         "email":"Email",
         "password": "Password",
         "loginBtn":"Sign In",
-        "signUp":"Sign Up"
+        "signUp":"Sign Up",
+        "authenticating":"Authenticating..."
+    },
+    "alerts": {
+        "profileSavedAlertHeader":"Profile",
+        "profileSavedAlertSubHeader":"Your profile updated successfully.",
+        "wrongCurrentPasswordAlertHeader":"Wrong Password!!!",
+        "wrongCurrentPasswordAlertSubHeader":"Your current password wrong. Please try again.",
+        "signupCompletedHeader":"Sign Up Completed",
+        "signupCompletedSubHeader":"Congratulations! Sign up completed you can login with this email now.",
+        "closeApplicationHeader":"Close Application",
+        "closeApplicationSubHeader":"Do you want to close application ?",
+        "closeAppAccept":"Close App",
+        "closeAppCancel":"Cancel",
+        "emailNotExistsAlertHeader":"Email not exists",
+        "emailNotExistsAlertSubHeader":"This email not exists in the system please sign up.",
+        "emailExistsAlertHeader":"Email exists",
+        "emailExistsAlertSubHeader":"This email exists in the system please sign in. If you forget password please click forget password.",
+        "emailEmptyHeader":"Email empty",
+        "emailEmptySubHeader":"Plase fill email than press forget password.",
+        "emailSentHeader":"Email Sent",
+        "emailSentSubHeader":"Email sent to :",
+        "needToSignInHeader":"Sign In Required",
+        "needToSignInSubHeader":"You need to sign in to see more jobs and features.",
+        "okey":"OK"
     }
 }

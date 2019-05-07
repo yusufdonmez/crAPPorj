@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { Button, Icon, ListItem, CheckBox, Body, Content, Grid, Row, Left, Header, Title, Right,Container } from "native-base";
 import { Actions } from "react-native-router-flux";
+import * as theme from '../assets/theme'
 
 const dimen = Dimensions.get('window');
 
@@ -144,8 +145,8 @@ const styles = StyleSheet.create({
         margin:15,
         borderWidth: 1,
         borderRadius: 5,
-        borderColor:'#5bd88c',
-        backgroundColor: '#5bd88c'
+        borderColor:theme.COLORS.Secondary,
+        backgroundColor: theme.COLORS.Secondary
     },
     checkoutText: {
         justifyContent: 'center', 

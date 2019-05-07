@@ -5,14 +5,14 @@ import {
     SafeAreaView
 } from "react-native";
 import { Container, Content, Grid, Row, Icon} from "native-base";
-
+import * as theme from '../assets/theme'
 class FeatureList extends Component {
     constructor(props){
         super(props)
     }
     render() {
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container>
                     <Content>
                         <Grid>

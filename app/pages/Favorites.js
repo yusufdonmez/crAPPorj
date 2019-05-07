@@ -10,6 +10,8 @@ import {
 import { Container, Content, List, ListItem, CardItem,  Left, Button, Thumbnail } from "native-base";
 import { TouchableHighlight } from "react-native-gesture-handler";
 
+import * as theme from '../assets/theme'
+
 const {width,height} = Dimensions.get('window')
 
 class Favorites extends Component {
@@ -26,7 +28,7 @@ class Favorites extends Component {
                         {id:10,img:require('../assets/10.png'),name:'Car Name 10',owner:'Ali',year:'2018',star:'0',price:100,tripNumber:23,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]}];
 
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container>
                     <Content>
                         {data.map((item, i) =>

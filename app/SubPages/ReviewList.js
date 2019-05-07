@@ -5,10 +5,9 @@ import {
     StyleSheet,
     SafeAreaView
 } from "react-native";
-
 import { Container, Content, Grid, Row, Icon, List, ListItem, Body, Left, Right, Thumbnail, Button} from "native-base";
 import { Actions } from "react-native-router-flux";
-
+import * as theme from '../assets/theme'
 class ReviewList extends Component {
     constructor(props){
         super(props)
@@ -29,7 +28,7 @@ class ReviewList extends Component {
     render() {
     const data = Array.from({length: 14});
         return (
-            <SafeAreaView style={{flex:1,backgroundColor: global.programPrimaryColor}}>
+            <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container>
                     <Content>
                         <View style={styles.totalReviewsContainer}>
@@ -45,7 +44,7 @@ class ReviewList extends Component {
                                         <Thumbnail source={require('../assets/user.jpeg')} />
                                     </Left>
                                     <Body>
-                                        <Text style={{fontWeight: '600',color:global.programSecondaryColor}}>William L.</Text>
+                                        <Text style={{fontWeight: '600',color:theme.COLORS.Secondary}}>William L.</Text>
                                         <Text note>Very nice car great owner he has very cool and helpful very good guy I will sure rent from in near feture.Very nice car great owner he has very cool and helpful very good guy I will sure rent from in near feture</Text>
                                     </Body>
                                     <Right>
