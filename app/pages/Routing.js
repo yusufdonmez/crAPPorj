@@ -79,7 +79,7 @@ class Routing extends Component {
 								backTitleEnabled={false} tabBarOnPress={() => { global.isLogin ? Actions.Host() : Actions.SignIn() }}
 								icon={({ focused }) => (<FontAwesomeIcon name='car' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
-							<Scene key="Profile" title={strings('tabs.profile')} component={ProfileTab} wrap
+							<Scene key="Profile" title={strings('tabs.profile')} component={ProfileTab} wrap onEnter={() => {Actions.refs.Profile.setIsLogin(global.isLogin);}}
 								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='user' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 						</Scene>

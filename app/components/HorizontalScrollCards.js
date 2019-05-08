@@ -8,10 +8,7 @@ import {
     Image,
     View,
     TouchableOpacity} from "react-native";
-
-
 import {Icon} from "native-base";
-
 let scrnWidth = Dimensions.get('window').width;
 
 export default class HorizontalScrollCards extends React.Component {
@@ -36,7 +33,7 @@ export default class HorizontalScrollCards extends React.Component {
     render(){
         return (
             <View style={{marginTop:20,marginBottom:20,backgroundColor:'white'}}>
-                <Text style={{marginLeft:10,fontWeight: '600',marginBottom:5}}>{this.props.headTitle}</Text>
+                <Text style={{marginLeft:10,fontWeight: '600',marginBottom:5,textTransform:'uppercase'}}>{this.props.headTitle}</Text>
                 <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
                     {this.props.datas.map((item, i) =>
                         <View key={`${this.props.headTitle}-${item.id}`}  style={styles.cardContainer}>

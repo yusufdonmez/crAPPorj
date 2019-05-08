@@ -34,7 +34,9 @@ class SignIn extends Component {
             signUpPassword:'',
 			spinnerCheck:false,
             displaySignIn:'false',
-            displaySignUp:'false'
+            displaySignUp:'false',
+            termsServiceCheck:false,
+            emailSendCheck: false,
         }
 		this.handleLogin = this.handleLogin.bind(this);
 		this.forgotPassword = this.forgotPassword.bind(this);
@@ -42,10 +44,10 @@ class SignIn extends Component {
     }
     handleLogin(userName,password) {
 		if( userName == '' )  {
-			this.userNameTextInput.focus();
+			this.userNameTextInput._root.focus();
 		}
 		else if( password == '' ){
-			this.passwordTextInput.focus();
+			this.passwordTextInput._root.focus();
 		}
 		else {
 			this.setModalVisible(true);
@@ -68,7 +70,7 @@ class SignIn extends Component {
 						global.userEmail = responseJson.userEmail;
 						global.userAvatar = responseJson.userAvatar;
 						global.userId = responseJson.userId;
-						global.isLogin = responseJson.success;
+						global.isLogin = true;
 						this.setState({isLogin:true});
 						try {
 							AsyncStorage.setItem('@MySuperStore:userName', this.state.userName);						
@@ -76,7 +78,8 @@ class SignIn extends Component {
 						} catch (error) {
 							// Error saving data
 						}    
-						console.log("Signed IN");
+                        console.log("Signed IN");
+                        Actions.refresh();
 						Actions.HomeScreen();
 					}
 					else if(responseJson.errorMsg == 'Email Not Exists'){
@@ -94,7 +97,7 @@ class SignIn extends Component {
 							strings('alerts.loginFailAlertHeader'),
 							strings('alerts.loginFailAlertSubHeader'),
 							[
-								{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.userNameTextInput.focus();}}
+								{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.userNameTextInput._root.focus();}}
 							],
 							{ cancelable: false }
 						);
@@ -112,47 +115,68 @@ class SignIn extends Component {
     }
     
     handleSignUp(userEmail,Name,password){
-		this.setModalVisible(true);
-		fetch(global.appAddress + '/service/c1/json/PublicService/signupUser/en_US',
-        {
-            credentials: 'include',
-            method: 'POST',
-            headers: { 
-                Accept: 'application/json',
-                'Content-Type': 'application/json' 
-            },
-            body: JSON.stringify({
-                email: userEmail,
-				password: password,
-				fullName: Name,
-			})
-        })
-        .then((response) => response.json())
-		.then((responseJson) => {
-			if(responseJson.errorMsg == 'Email Exists'){
-				Alert.alert(
-					strings('alerts.emailExistsAlertHeader'),
-					strings('alerts.emailExistsAlertSubHeader'),
-					[
-						{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({isSignUp:false})}}
-					],
-					{ cancelable: false }
-				);
-			}
-			else {
-				Alert.alert(
-					strings('alerts.signupCompletedHeader'),
-					strings('alerts.signupCompletedSubHeader'),
-					[
-						{text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({ isSignUp: false }) } }
-					],
-					{ cancelable: false }
-				);
-			}
-		})
-        .catch((error) =>{
-            console.error(error);
-        });
+		if( userEmail == '' )  {
+			this.signUpEmail._root.focus();
+		}
+		else if( Name == '' ){
+			this.signUpName._root.focus();
+		}
+		else if( password == '' ){
+			this.signUpPassword._root.focus();
+        }
+        else if (!this.state.termsServiceCheck) {
+            Alert.alert(
+                strings('alerts.termsAndServiceHeader'),
+                strings('alerts.termsAndServiceSubHeader'),
+                [
+                    {text: strings('alerts.okey') }
+                ],
+                { cancelable: true }
+            );
+        }
+		else {
+            this.setModalVisible(true);
+            fetch(global.appAddress + '/service/c1/json/PublicService/signupUser/en_US',
+            {
+                credentials: 'include',
+                method: 'POST',
+                headers: { 
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify({
+                    email: userEmail,
+                    password: password,
+                    fullName: Name,
+                })
+            })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                if(responseJson.errorMsg == 'Email Exists'){
+                    Alert.alert(
+                        strings('alerts.emailExistsAlertHeader'),
+                        strings('alerts.emailExistsAlertSubHeader'),
+                        [
+                            {text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({isSignUp:false})}}
+                        ],
+                        { cancelable: false }
+                    );
+                }
+                else {
+                    Alert.alert(
+                        strings('alerts.signupCompletedHeader'),
+                        strings('alerts.signupCompletedSubHeader'),
+                        [
+                            {text: strings('alerts.okey'), onPress: () => {this.setModalVisible(false);this.setState({ isSignUp: false,displaySignIn:'true',displaySignUp:'false' }) }  }
+                        ],
+                        { cancelable: false }
+                    );
+                }
+            })
+            .catch((error) =>{
+                console.error(error);
+            });
+        }
 	}
     forgotPassword(userEmail){
 		if( userEmail == '' )  {
@@ -198,6 +222,15 @@ class SignIn extends Component {
 				console.error(error);
 			});
 		}
+    }
+    
+    checkBoxToggle(checkField){
+        if(checkField == 'emailSendCheck') {
+            this.setState({emailSendCheck:!this.state.emailSendCheck})
+        }
+        if(checkField == 'termsServiceCheck') {
+            this.setState({termsServiceCheck:!this.state.termsServiceCheck})
+        }
     }
 
     render() {
@@ -248,25 +281,25 @@ class SignIn extends Component {
                                                 <Label style={{color:'white',fontWeight:'900'}}>EMAIL LOG IN</Label>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
-                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.email._root.focus()}}>Email</Label>
+                                                <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.userNameTextInput._root.focus()}}>Email</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='next'
                                                     onChangeText={(text) => this.setState({userName:text})}
-                                                    ref={(input) => { this.email = input; }}
-                                                    onSubmitEditing={() => { this.password._root.focus(); }}/>
+                                                    ref={(input) => this.userNameTextInput = input }
+                                                    onSubmitEditing={() => { this.passwordTextInput._root.focus(); }}/>
                                             </Item>
-                                            <Item inlineLabel last placeholderTextColor='white' onPress={() => {this.password._root.focus()}}>
+                                            <Item inlineLabel last placeholderTextColor='white' onPress={() => {this.passwordTextInput._root.focus()}}>
                                                 <Label style={{color:'gray',fontWeight:'900'}}>Password</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='done' secureTextEntry
                                                     onChangeText={(text) => this.setState({password:text})}
-                                                    ref={(input) => { this.password = input; }}/>
+                                                    ref={(input) => this.passwordTextInput = input }/>
                                             </Item>
-                                            <Button block style={{backgroundColor: theme.COLORS.Primary,margin:10}} onPress={() => {this.handleLogin(this.state.userName,this.state.password)}}>
+                                            <Button block style={{backgroundColor: theme.COLORS.Secondary,margin:10}} onPress={() => {this.handleLogin(this.state.userName,this.state.password)}}>
                                                 <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>
                                                     Log in with email
                                                 </Text>
                                             </Button>
                                             <Button transparent block style={{margin:10}} onPress={() => {this.forgotPassword(this.state.userName)}}>
-                                                <Text style={{color:theme.COLORS.Primary,fontSize:20,fontWeight:'900'}}>
+                                                <Text style={{color:theme.COLORS.Secondary,fontSize:20,fontWeight:'900'}}>
                                                     Forgot password?
                                                 </Text>
                                             </Button>
@@ -329,25 +362,25 @@ class SignIn extends Component {
                                                 />
                                             </Item>
                                             <Item style={{paddingTop:10,paddingBottom:10,width:'100%'}}>
-                                                <CheckBox checked={true} color={theme.COLORS.Primary} />
+                                                <CheckBox checked={this.state.termsServiceCheck}  onPress={() => {this.checkBoxToggle('termsServiceCheck');}}   color={theme.COLORS.Secondary} />
                                                 <Body>
                                                     <Text style={{flex:1,color:'white',fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                         I Agree to the terms of service and privacy policy
                                                     </Text> 
-                                                    <Text style={{flex:1,color:theme.COLORS.Primary,fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
+                                                    <Text style={{flex:1,color:theme.COLORS.Secondary,fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                         I Agree to the terms of service and privacy policy
                                                     </Text>
                                                 </Body>
                                             </Item>
                                             <Item style={{paddingTop:10,paddingBottom:10,width:'100%'}}>
-                                                <CheckBox checked={true}  color={theme.COLORS.Primary}/>
+                                                <CheckBox checked={this.state.emailSendCheck} onPress={() => {this.checkBoxToggle('emailSendCheck');}}  color={theme.COLORS.Secondary}/>
                                                 <Body>
                                                     <Text style={{flex:1,color:'white',fontSize:15,fontWeight:'900',paddingStart:20,paddingEnd:20,flexWrap:'wrap'}}>
                                                     Yes, send me deals, discounts, and updates!
                                                     </Text> 
                                                 </Body>
                                             </Item>
-                                            <Button block style={{backgroundColor: theme.COLORS.Primary,margin:10}}
+                                            <Button block style={{backgroundColor: theme.COLORS.Secondary,margin:10}}
                                                     onChangeText={(text) => this.setState({signUpUserName:text})}
                                                     onPress={ () => { this.handleSignUp(this.state.signUpUserName,this.state.signUpName,this.state.signUpPassword) } }>
                                                 <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>

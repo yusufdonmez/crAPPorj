@@ -28,12 +28,20 @@ class SearchModal extends Component {
                     fetchDetails={true}
                     currentLocation={false}
                     placeholderTextColor='white'
-                    filterReverseGeocodingByTypes={['locality', 'administrative_area_level_3']}
-                    onSubmitEditing={() => { alert('TEST'); } }
+                    filterReverseGeocodingByTypes={['locality', 'administrative_area_level_1']}
+                    onSubmitEditing={() => {   } }
                     onPress={(data, details = null) => { // 'details' is provided when fetchDetails = true
                         Actions.HomeScreen();
                         console.log(details.geometry.viewport);
-                        Actions.CarList({searchTitle:details.name,geometry:details.geometry})
+                        Actions.CarList({
+                            searchTitle:details.name,
+                            northeastLat:details.geometry.viewport.northeast.lat,
+                            northeastLng:details.geometry.viewport.northeast.lng,
+                            southwestLat:details.geometry.viewport.southwest.lat,
+                            southwestLng:details.geometry.viewport.southwest.lng,
+                            searchLat:details.geometry.location.lat,
+                            searchLng:details.geometry.location.lng
+                        })
                     }}
                     query={{
                         // available options: https://developers.google.com/places/web-service/autocomplete

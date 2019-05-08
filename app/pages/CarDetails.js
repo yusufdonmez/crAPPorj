@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { 
     Dimensions,
     Image,
-    StatusBar,
+    AsyncStorage,
     StyleSheet, 
     Text, 
     View,
@@ -39,7 +39,7 @@ class CarDetails extends Component {
         this._renderReviewStars = this._renderReviewStars.bind(this);
     }
 
-    componentDidMount(){
+    getCarDetails(){
         console.log(global.appAddress + '/service/c1/json/PublicService/carDetails/en_US')
         
         fetch(global.appAddress + '/service/c1/json/PublicService/carDetails/en_US?id=' + this.props.itemDetails.id ,
@@ -65,6 +65,30 @@ class CarDetails extends Component {
         .catch((error) => {
             console.error(error.message + ' on CarDetails at line 64');
         });
+    }
+    setRecentlyViewed(itemID){
+        AsyncStorage.getItem('@MySuperStore:recentlyViewed')
+        .then(req => JSON.parse(req)).then((value) => {
+            if(value == null){
+                value = [];
+                value.unshift(itemID);
+            }
+            else if( value.length > 5  && !value.includes(itemID) ) {
+                value.unshift(itemID);
+                value.pop();
+            }
+            else if(!value.includes(itemID)) {
+                value.unshift(itemID);
+            }
+            AsyncStorage.setItem('@MySuperStore:recentlyViewed', JSON.stringify(value));
+        })
+        .catch(error => console.log('setRecentlyViewed  ' + error.message));
+
+    }
+
+    componentDidMount(){
+        this.setRecentlyViewed(this.props.itemDetails.id);
+        this.getCarDetails();
     }
 
     _renderReviewStars(star){
@@ -410,8 +434,8 @@ const styles = StyleSheet.create({
         margin:15,
         borderWidth: 1,
         borderRadius: 5,
-        borderColor:theme.COLORS.Primary,
-        backgroundColor: theme.COLORS.Primary
+        borderColor:theme.COLORS.Secondary,
+        backgroundColor: theme.COLORS.Secondary
     },
     checkoutText: {
         justifyContent: 'center', 

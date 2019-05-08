@@ -73,22 +73,20 @@ class CarList extends Component {
 
     componentDidMount(){
         console.log('CarList.js componentDidMount')
-        let northeast = this.props.geometry.viewport.northeast;
-        let southwest = this.props.geometry.viewport.southwest;
-        
-        this.setState({northeast,southwest});
-        this.loadCarList(northeast.lat,northeast.lng,southwest.lat,southwest.lng,this.props.geometry.location.lat,this.props.geometry.location.lng);
+        const {northeastLat,northeastLng,southwestLat,southwestLng,searchLat,searchLng} = this.props
+
+        this.loadCarList(northeastLat,northeastLng,southwestLat,southwestLng,searchLat,searchLng);
     }
     
     //Functions 
 
-    loadCarList(northeastLat,northeastLng,southwesLat,southwesLng,searchLat,searchLng){
-        console.log('CarList.js loadCarList => '+ northeastLat +'-'+ northeastLng +'-'+ southwesLat +'-'+ southwesLng +'-'+ searchLat +'-'+ searchLng)
+    loadCarList(northeastLat,northeastLng,southwestLat,southwestLng,searchLat,searchLng){
+        console.log('CarList.js loadCarList => '+ northeastLat +'-'+ northeastLng +'-'+ southwestLat +'-'+ southwestLng +'-'+ searchLat +'-'+ searchLng)
         this.setState({searchLat,searchLng})
-        let lngMin = northeastLng < southwesLng ? northeastLng : southwesLng;
-        let lngMax = northeastLng < southwesLng ? southwesLng : northeastLng;
-        let latMax = northeastLat < southwesLat ? southwesLat : northeastLat;
-        let latMin = northeastLat < southwesLat ? northeastLat : southwesLat;
+        let lngMin = northeastLng < southwestLng ? northeastLng : southwestLng;
+        let lngMax = northeastLng < southwestLng ? southwestLng : northeastLng;
+        let latMax = northeastLat < southwestLat ? southwestLat : northeastLat;
+        let latMin = northeastLat < southwestLat ? northeastLat : southwestLat;
         
         fetch(global.appAddress + '/service/c1/json/PublicService/carSearch/en_US?latMax='+latMax+'&latMin='+latMin+'&lngMax='+lngMax+'&lngMin='+lngMin,
         {

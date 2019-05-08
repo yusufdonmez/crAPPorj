@@ -6,13 +6,24 @@
     "allRightsText": "All rights reserved 2019 Harmony ICT",
     "loading":"Loading...",
     "authenticating":"Authenticating...",
-    "search":"Enter city, airport or ",
+    "yes":"Yes",
+    "no":"No",
     "tabs" : {
         "search":"Search",
         "trips":"Trips",
         "messages":"Messages",
         "host":"Host",
         "profile":"Profile"
+    },
+    "homescreen": {
+        "firstCommercial":"Way better than",
+        "secondCommercial":"a rental car",
+        "search":"Enter city, airport or address",
+        "youMightLike":"You Might Like",
+        "listYourCar":"List your car",
+        "recentlyViewed":"Recently Viewed",
+        "commercialHeader":"The car that pays for itself.",
+        "commercialSubHeader":"Share your car, earn extra cash. List it in just 10 minutes."
     },
     "login":{
         "email":"Email",
@@ -42,6 +53,10 @@
         "emailSentSubHeader":"Email sent to :",
         "needToSignInHeader":"Sign In Required",
         "needToSignInSubHeader":"You need to sign in to see more jobs and features.",
+        "termsAndServiceHeader":"Terms of service",
+        "termsAndServiceSubHeader":"Please accept terms of service",
+        "logoutFromSystemHeader":"",
+        "logoutFromSystemSubHeader":"Are you sure you want to log out ?",
         "okey":"OK"
     }
 }

@@ -12,26 +12,66 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 let scrnWidth = Dimensions.get('window').width;
 
 class Destinations extends Component {
+    constructor(props){
+        super(props)
+        this.state = {
+            isLoading:true,
+            destinationsData:[]
+        }
+
+    }
+    getDestinations(){
+        fetch(global.appAddress + '/service/c1/json/PublicService/topCityList/en_US' ,
+        {
+            credentials: 'include',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('Destinations: ' + responseJson.items);
+            if( responseJson.items != undefined && responseJson.length != 0 ){
+                console.log('<--- Destinations service loaded from server --->');
+                this.setState({isLoading:false,
+                            destinationsData: responseJson.items});
+            }
+            else {
+                this.setState({isLoading:false});
+            }
+        })
+        .catch((error) => {
+            console.error(error.message + ' on CarDetails at line 64');
+        });
+    }
+
+    componentDidMount(){
+        this.getDestinations();
+    }
+
     render() {
-        const data = [{id:1,img:require('../assets/1.png'),name:'Ford Mustang SRT',owner:'Joey',year:'2018',star:'5',price:55,tripNumber:19,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'},{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:2,img:require('../assets/2.png'),name:'Car Name 2',owner:'Joe',year:'2016',star:'2',price:12,tripNumber:3,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:3,img:require('../assets/3.png'),name:'Porche Carerra',owner:'Mike',year:'2018',star:'4',price:45,tripNumber:123,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:4,img:require('../assets/4.png'),name:'Audi RS',owner:'Paul',year:'2013',star:'2',price:56,tripNumber:5,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:5,img:require('../assets/5.png'),name:'Car Name 5',owner:'Frank',year:'2012',star:'5',price:76,tripNumber:574,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:6,img:require('../assets/6.png'),name:'Car Name 6',owner:'Jose',year:'2018',star:'1',price:78,tripNumber:34,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:7,img:require('../assets/7.png'),name:'Car Name 7',owner:'Jack',year:'2018',star:'5',price:90,tripNumber:12,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:8,img:require('../assets/8.png'),name:'Car Name 8',owner:'Lisa',year:'2019',star:'3',price:25,tripNumber:43,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:9,img:require('../assets/9.png'),name:'Car Name 9',owner:'Martin',year:'2018',star:'5',price:49,tripNumber:84,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]},
-                    {id:10,img:require('../assets/10.png'),name:'Car Name 10',owner:'Ali',year:'2018',star:'0',price:100,tripNumber:23,features:[{icon:'bluetooth'},{icon:'calendar'},{icon:'car'},{icon:'radio'}]}];
         return (
             <View>
                 <Text style={{flex:1,textAlign:"center",fontSize:30,fontWeight:'600'}}>Top Destinations</Text>
                 <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
                     <List style={styles.cardContainer}>
-                        {data.map((item, i) =>
-                            <ListItem key={i} style={{flexDirection:'row',padding:10,position:"relative"}} onPress={() => {Actions.ProfilePage();}}>
-                                <Thumbnail avatar style={{width:120,height: 120,borderRadius: 60}} source={item.img} />
-                                <Text style={styles.destination}>{item.name}</Text>
+                        {this.state.destinationsData.map((item, i) =>
+                            <ListItem key={i} style={{flexDirection:'row',padding:10,position:"relative"}}
+                                onPress={() => 
+                                    { Actions.CarList({
+                                        searchTitle:item.EngName,
+                                        northeastLat:item.northeastLat,
+                                        northeastLng:item.northeastLng,
+                                        southwestLat:item.southwestLat,
+                                        southwestLng:item.southwestLng,
+                                        searchLat:item.centerLat,
+                                        searchLng:item.centerLng
+                                    })}
+                                }>
+                                <Thumbnail avatar style={{width:120,height: 120,borderRadius: 60}}
+                                source={{uri: global.appAddress+'/Image?imagePath='+ item.cityPhoto}} />
+                                <Text style={styles.destination}>{item.EngName}</Text>
                             </ListItem>
                         )}
                     </List>

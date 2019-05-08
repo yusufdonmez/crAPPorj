@@ -5,7 +5,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
-    TextInput,
+    AsyncStorage,
     View,} from "react-native";
     
 import {Actions} from 'react-native-router-flux'
@@ -23,18 +23,19 @@ class HomeScreen extends Component {
             scrollY: new Animated.Value(0),
             mySearchText:'',
             isLoading:true,
+            isLoadingRecently:true,
             dataSource:[],
             noRecordsFound:false,
-            carDatas: []
+            carDatas: [],
+            recentlyViewedData:[]
         }
-        global.headerMaxHeight = 350;
-        global.headerMinHeight = 120;
-        global.headerScrollDistance = 230;
+        global.headerMaxHeight = 450;
+        global.headerMinHeight = 100;
+        global.headerScrollDistance = 350;
         
         this.searchCar = this.searchCar.bind(this)
     }
-
-    componentDidMount(){
+    getYouMightlikeData(){
         console.log(global.appAddress + '/service/c1/json/PublicService/youMightLike/en_US')
         fetch(global.appAddress + '/service/c1/json/PublicService/youMightLike/en_US',
         {
@@ -48,7 +49,7 @@ class HomeScreen extends Component {
         .then((responseJson) => {
             console.log('Component Did Mount Data List: '+ responseJson.items);
             if( responseJson.items != undefined && responseJson.length != 0 ){
-                console.log('<--- youMightLike service loaded from server --->');
+                console.log('<--- getYouMightlikeData Loaded From Server --->' + responseJson.items);
                 this.setState({isLoading:false,
                             carDatas: responseJson.items});
             }
@@ -61,8 +62,43 @@ class HomeScreen extends Component {
         });
     }
 
+    getRecentlyViewedData(){
+        AsyncStorage.getItem('@MySuperStore:recentlyViewed')
+            .then(req => JSON.parse(req)).then((value) => {
+                console.log("getRecentlyViewedData" + value);
+                if( value != undefined && value.length != 0 ){
+                    fetch(global.appAddress + '/service/c1/json/PublicService/recentlyViewed/en_US?carIds='+value , {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    .then((response) => response.json())
+                    .then((responseJson) => {
+                        console.log('<--- RecentlyViewedData Loaded From Server --->' + responseJson.items);
+                        this.setState({isLoadingRecently:false,recentlyViewedData: responseJson.items});
+                    })
+                    .catch((error) => {
+                        console.error(error.message + ' on HomeScreen.js at line 83');
+                    });
+                }
+                else {
+                    this.setState({isLoadingRecently:false});
+                }
+            })
+            .catch(error => console.log(error.message));
+    }
+
+    componentDidMount(){
+        this.getYouMightlikeData();
+        this.getRecentlyViewedData();
+    }
+
     scrollTop(){
         this.refs['_ScrollView'].scrollTo({x: 0, y: 0, animated: true});
+        this.getRecentlyViewedData();
     }
     
     _renderScrollViewContent() {
@@ -102,9 +138,14 @@ class HomeScreen extends Component {
             outputRange: [0, -50],
             extrapolate: 'clamp',
         });
+        const textMargin = this.state.scrollY.interpolate({
+            inputRange: [0, headerScrollDistance],
+            outputRange: [150, -40],
+            extrapolate: 'clamp',
+        });
         const searchMargin = this.state.scrollY.interpolate({
-            inputRange: [0, headerScrollDistance-90],
-            outputRange: [150, 30],
+            inputRange: [0, headerScrollDistance],
+            outputRange: [50, 0],
             extrapolate: 'clamp',
         });
         return (
@@ -121,37 +162,40 @@ class HomeScreen extends Component {
                         { !this.state.isLoading && (
                             <HorizontalScrollCards openCarDetailsNav={this.openCarDetails.bind(this)} 
                                                 datas={this.state.carDatas} 
-                                                headTitle="YOU MIGHT LIKE">
+                                                headTitle={strings('homescreen.youMightLike')}>
                             </HorizontalScrollCards>
                         )}
                         { this.state.isLoading && (
+                            /* Put progress image commercial. */
                             <View stlye={{height:320,justifyContent:'center',alignItems:'center'}}>
-                                <Icon style={{fontSize:58}} name='refresh' ></Icon>
+                                <Icon style={{fontSize:58}} name='refresh' ></Icon> 
                             </View>
                         )}
                     </Animated.View>
 
                     <View style={styles.hostCommercialContainer}>
                         <Button block style={{backgroundColor:global.programSecondaryColor}} 
-                                onPress={() => { Actions.CarList(); }}>
-                            <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>List your car</Text>
+                                onPress={() => { Actions.HostPage(); }}>
+                            <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>{strings('homescreen.listYourCar')}</Text>
                         </Button>
                     </View>
-                    <Destinations></Destinations>
 
-                    <HorizontalScrollCards openCarDetailsNav={this.openCarDetails.bind(this)} datas={this.state.carDatas} headTitle="RECENTLY VIEWED"></HorizontalScrollCards>
+                    <Destinations></Destinations>
                     
+                    {this.state.recentlyViewedData != '' && (
+                        <HorizontalScrollCards openCarDetailsNav={this.openCarDetails.bind(this)} datas={this.state.recentlyViewedData} headTitle={strings('homescreen.recentlyViewed')}></HorizontalScrollCards>
+                    )}
                     <View style={styles.hostCommercialContainer}>
                         <Text style={{fontSize:35,fontWeight: '700',textAlign:'center'}}>
-                            The car that pays for itself.
+                            {strings('homescreen.commercialHeader')}
                         </Text>
 
                         <Text style={{fontSize:15,fontWeight: '500',textAlign:'center',margin:40,}}>
-                            Share your car, earn extra cash. List it in just 10 minutes.
+                            {strings('homescreen.commercialSubHeader')}
                         </Text>
 
                         <Button block style={{backgroundColor:global.programSecondaryColor}} onPress={() => {this.refs['_ScrollView'].scrollTo({x: 0, y: 0, animated: true}); }}>
-                            <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>List your car</Text>
+                            <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>{strings('homescreen.listYourCar')}</Text>
                         </Button>
                     </View>
 
@@ -163,12 +207,15 @@ class HomeScreen extends Component {
                             ]}
                             source={require('../assets/homescreen.jpeg')}
                         />
+                    <Animated.View style={[styles.bar, {marginTop:textMargin}]}>
+                        <Animated.Text style={[styles.title, {opacity:imageOpacity}]}>{strings('homescreen.firstCommercial')}</Animated.Text>
+                        <Animated.Text style={[styles.title, {opacity:imageOpacity}]}>{strings('homescreen.secondCommercial')}</Animated.Text>
+                    </Animated.View>
                     <Animated.View style={[styles.bar, {marginTop:searchMargin}]}>
-                        <Animated.Text style={[styles.title, {opacity:imageOpacity}]}>Way better than a rental car</Animated.Text>
-                        <TextInput style={styles.searchText} secureTextEntry={false}
-                            placeholder={strings('search')}
-                            value={this.state.mySearchText} onFocus={() => {Actions.SearchModal()}} 
-                            />
+                        <Button block light style={styles.searchText}
+                            value={this.state.mySearchText} onPress={() => {this.refs['_ScrollView'].scrollTo({x: 0, y: 450, animated: true}); Actions.SearchModal()}}>
+                            <Text style={{fontSize: 15,color: '#9BA2A7'}}>{strings('homescreen.search')}</Text>
+                        </Button>
                     </Animated.View>
                 </Animated.View>
                 
@@ -206,17 +253,17 @@ const styles = StyleSheet.create({
         top: 0,
         left: 0,
         right: 0,
-        backgroundColor: '#231f20',
+        backgroundColor: theme.COLORS.Primary,
         overflow: 'hidden',
     },
     bar: {
-        height: 32,
         alignItems: 'center',
         justifyContent: 'center',
     },
     title: {
         backgroundColor: 'transparent',
         color: 'white',
+        fontWeight: '900',
         fontSize: 35,
         width:'100%',
         justifyContent:'center',
@@ -224,12 +271,10 @@ const styles = StyleSheet.create({
     },
     searchText: {
         textAlign: 'center',
-        fontSize: 15,
-        color: '#9BA2A7',
-        width:'90%',
         backgroundColor:'white',
         height:50,
-        margin: 10,
+        marginLeft: 20,
+        marginRight: 20
     },
     scrollViewContent: {
         marginTop: global.headerMaxHeight,
@@ -240,7 +285,7 @@ const styles = StyleSheet.create({
         left: 0,
         right: 0,
         width: null,
-        height: 350,
+        height: 450,
         resizeMode:'cover'
     },
     hostCommercialContainer: {
