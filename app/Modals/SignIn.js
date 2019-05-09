@@ -4,7 +4,7 @@ import {
     Text,
     StyleSheet,
     TouchableOpacity,
-    Image,
+    AsyncStorage,
     Alert,
     SafeAreaView,
     ImageBackground,
@@ -73,11 +73,11 @@ class SignIn extends Component {
 						global.isLogin = true;
 						this.setState({isLogin:true});
 						try {
-							AsyncStorage.setItem('@MySuperStore:userName', this.state.userName);						
-							AsyncStorage.setItem('@MySuperStore:password', this.state.password);
+							AsyncStorage.setItem('@MySuperStore:userName', userName);						
+                            AsyncStorage.setItem('@MySuperStore:password', password);
 						} catch (error) {
 							// Error saving data
-						}    
+                        }
                         console.log("Signed IN");
                         Actions.refresh();
 						Actions.HomeScreen();
@@ -177,7 +177,8 @@ class SignIn extends Component {
                 console.error(error);
             });
         }
-	}
+    }
+    
     forgotPassword(userEmail){
 		if( userEmail == '' )  {
 			Alert.alert(
@@ -282,7 +283,7 @@ class SignIn extends Component {
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
                                                 <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.userNameTextInput._root.focus()}}>Email</Label>
-                                                <Input style={styles.inputStyle} returnKeyType='next'
+                                                <Input style={styles.inputStyle} returnKeyType='next' autoCapitalize = "none" 
                                                     onChangeText={(text) => this.setState({userName:text})}
                                                     ref={(input) => this.userNameTextInput = input }
                                                     onSubmitEditing={() => { this.passwordTextInput._root.focus(); }}/>
@@ -291,7 +292,8 @@ class SignIn extends Component {
                                                 <Label style={{color:'gray',fontWeight:'900'}}>Password</Label>
                                                 <Input style={styles.inputStyle} returnKeyType='done' secureTextEntry
                                                     onChangeText={(text) => this.setState({password:text})}
-                                                    ref={(input) => this.passwordTextInput = input }/>
+                                                    ref={(input) => this.passwordTextInput = input }
+                                                    onSubmitEditing={() => {this.handleLogin(this.state.userName,this.state.password)} }/>
                                             </Item>
                                             <Button block style={{backgroundColor: theme.COLORS.Secondary,margin:10}} onPress={() => {this.handleLogin(this.state.userName,this.state.password)}}>
                                                 <Text style={{color:'white',fontSize:20,fontWeight:'900'}}>
@@ -342,14 +344,14 @@ class SignIn extends Component {
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
                                                 <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.signUpEmail._root.focus()}}>Email</Label>
-                                                <Input style={styles.inputStyle} returnKeyType='next'
+                                                <Input style={styles.inputStyle} returnKeyType='next' autoCapitalize = "none" 
                                                     onChangeText={(text) => this.setState({signUpUserName:text})}
                                                     ref={(input) => { this.signUpEmail = input; }}
                                                     onSubmitEditing={() => { this.signUpName._root.focus(); }}/>
                                             </Item>
                                             <Item inlineLabel placeholderTextColor='white'>
                                                 <Label style={{color:'gray',fontWeight:'900'}} onPress={() => {this.signUpName._root.focus()}}>Name</Label>
-                                                <Input style={styles.inputStyle} returnKeyType='next'
+                                                <Input style={styles.inputStyle} returnKeyType='next' autoCapitalize = "none" 
                                                     onChangeText={(text) => this.setState({signUpName:text})}
                                                     ref={(input) => { this.signUpName = input; }}
                                                     onSubmitEditing={() => { this.signUpPassword._root.focus(); }}/>

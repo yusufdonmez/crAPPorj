@@ -52,6 +52,7 @@ class CarList extends Component {
             listOrMap:'list',
             refreshing:false,
             carList:[],
+            updateRegion:false,
             northeast:null,
             southwest:null,
             searchLat:null,
@@ -68,7 +69,6 @@ class CarList extends Component {
         }
         this._renderReviewStars = this._renderReviewStars.bind(this);
         this.loadCarList = this.loadCarList.bind(this);
-        this.handleScrollDone = this.handleScrollDone.bind(this);
     }
 
     componentDidMount(){
@@ -77,8 +77,6 @@ class CarList extends Component {
 
         this.loadCarList(northeastLat,northeastLng,southwestLat,southwestLng,searchLat,searchLng);
     }
-    
-    //Functions 
 
     loadCarList(northeastLat,northeastLng,southwestLat,southwestLng,searchLat,searchLng){
         console.log('CarList.js loadCarList => '+ northeastLat +'-'+ northeastLng +'-'+ southwestLat +'-'+ southwestLng +'-'+ searchLat +'-'+ searchLng)
@@ -114,33 +112,6 @@ class CarList extends Component {
         });
     }
 
-    handleScroll (event) {
-        console.log('MapViewComponent.js handleScroll'); 
-        if(this.state.checkScroll) {
-            var index = Math.floor(event.nativeEvent.contentOffset.x / screen.width);
-            console.warn('Scroll Index: ' + index);
-            if( index > -1 ) {
-                this.updateRegion(this.state.carList[index].Lat,this.state.carList[index].Lng);
-                this.setState({selectedID: index });
-            }
-        }
-    }
-
-    handleScrollDone(event){
-        console.log('MapViewComponent.js handleScroll'); 
-        if(this.state.checkScroll) {
-            var index = Math.floor(event.nativeEvent.contentOffset.x / screen.width);
-            console.warn('Scroll Index: ' + index);
-            if( index > -1 ) {
-                this.updateRegion(this.state.carList[index].Lat,this.state.carList[index].Lng);
-                this.setState({selectedID: index });
-            }
-            else{
-                index = 0;
-            }
-        }
-    }
-
     scrollToIndex = (index,lat,lng) => {
         if(this.state.selectedID == -1) {
             this.setState({selectedID:index}); //Workaround for first time press marker opening first car always
@@ -174,6 +145,7 @@ class CarList extends Component {
     }
 
     onRegionChangeComplete = (region) => {
+        console.log('onRegionChangeComplete : ' + region);
         this.setState({
             mapBoundaries: this.map.getMapBoundaries(),
             region
@@ -198,7 +170,7 @@ class CarList extends Component {
     }
 
     _renderItem = ({item}) => (
-        <TouchableWithoutFeedback 
+        <TouchableWithoutFeedback style={{height:90}}
             key={`car-${item.id}`} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))} >
             <View style={[styles.car, styles.shadow]}>
                 <View style={styles.carInfoContainer}>
@@ -227,6 +199,19 @@ class CarList extends Component {
         </TouchableWithoutFeedback>
     )
 
+    onViewableItemsChanged = ({ viewableItems }) => {
+        var index = viewableItems[0].index
+        if(this.state.checkScroll) {
+            if( index > -1 ) {
+                this.updateRegion(this.state.carList[index].Lat,this.state.carList[index].Lng);
+                this.setState({selectedID: index });
+            }
+            else{
+                index = 0;
+            }
+        }
+    }
+
     renderCarHorizontal = () => {
         return (
             <FlatList
@@ -238,9 +223,12 @@ class CarList extends Component {
                 renderItem={this._renderItem}
                 pagingEnabled={true}
                 keyExtractor={(item, index) => index}
-                scrollEventThrottle={1}
+                scrollEventThrottle={16}
                 onScrollBeginDrag={() => (this.setState({checkScroll:true}))}
-                onScrollEndDrag={this.handleScrollDone}
+                viewabilityConfig={{
+                    itemVisiblePercentThreshold: 50
+                }}
+                onViewableItemsChanged={this.onViewableItemsChanged }
             />
         )
     }
@@ -557,11 +545,6 @@ const styles = StyleSheet.create({
     mapAndFilterImageStyle:{
         color:'#404040',
         fontSize:14
-    },
-    reviewStar: {
-        color:'red',
-        fontSize:10,
-        marginEnd:3
     },
     searchButtonContainer: {
         position:'absolute',

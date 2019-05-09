@@ -96,7 +96,7 @@ class HomeScreen extends Component {
         this.getRecentlyViewedData();
     }
 
-    scrollTop(){
+    onEnter(){
         this.refs['_ScrollView'].scrollTo({x: 0, y: 0, animated: true});
         this.getRecentlyViewedData();
     }
@@ -175,7 +175,7 @@ class HomeScreen extends Component {
 
                     <View style={styles.hostCommercialContainer}>
                         <Button block style={{backgroundColor:global.programSecondaryColor}} 
-                                onPress={() => { Actions.HostPage(); }}>
+                                onPress={() => { Actions.Host(); }}>
                             <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>{strings('homescreen.listYourCar')}</Text>
                         </Button>
                     </View>

@@ -64,7 +64,7 @@ class Routing extends Component {
 						tabBarStyle={{ backgroundColor: theme.COLORS.Primary,color:'white' }}>
 
 							{/* Tabs */}
-							<Scene key="HomeScreen" title={strings('tabs.search')} component={HomeScreen} hideNavBar initial={true} onEnter={() => {Actions.refs.HomeScreen.scrollTop();}}
+							<Scene key="HomeScreen" title={strings('tabs.search')} component={HomeScreen} hideNavBar initial={true} onEnter={() => {Actions.refs.HomeScreen.onEnter();}}
 								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='search' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 						
 							<Scene key="Trips" title={strings('tabs.trips')} title="TRIPS" wrap component={TripsPage}
@@ -79,7 +79,8 @@ class Routing extends Component {
 								backTitleEnabled={false} tabBarOnPress={() => { global.isLogin ? Actions.Host() : Actions.SignIn() }}
 								icon={({ focused }) => (<FontAwesomeIcon name='car' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
-							<Scene key="Profile" title={strings('tabs.profile')} component={ProfileTab} wrap onEnter={() => {Actions.refs.Profile.setIsLogin(global.isLogin);}}
+							<Scene key="Profile" title={strings('tabs.profile')} component={ProfileTab} wrap 
+								onEnter={() => {Actions.refs.Profile.onEnter(global.isLogin)}}
 								backTitleEnabled={false} icon={({ focused }) => (<FontAwesomeIcon name='user' color={focused ? theme.COLORS.Secondary : 'white'} size={24} />)} />
 
 						</Scene>

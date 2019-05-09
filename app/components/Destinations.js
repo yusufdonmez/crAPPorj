@@ -57,7 +57,7 @@ class Destinations extends Component {
                 <ScrollView style={styles.scrollContainer} horizontal={true} showsHorizontalScrollIndicator={false}>
                     <List style={styles.cardContainer}>
                         {this.state.destinationsData.map((item, i) =>
-                            <ListItem key={i} style={{flexDirection:'row',padding:10,position:"relative"}}
+                            <ListItem key={i} style={{flexDirection:'row',padding:5,position:"relative"}}
                                 onPress={() => 
                                     { Actions.CarList({
                                         searchTitle:item.EngName,
@@ -71,7 +71,12 @@ class Destinations extends Component {
                                 }>
                                 <Thumbnail avatar style={{width:120,height: 120,borderRadius: 60}}
                                 source={{uri: global.appAddress+'/Image?imagePath='+ item.cityPhoto}} />
-                                <Text style={styles.destination}>{item.EngName}</Text>
+                                {global.languageCode != 'ar' 
+                                    ?
+                                        <Text style={styles.destination}>{item.EngName}</Text>
+                                    :
+                                        <Text style={styles.destination}>{item.ArName}</Text>
+                                }
                             </ListItem>
                         )}
                     </List>

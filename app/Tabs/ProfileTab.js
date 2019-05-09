@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {DrawerLayoutAndroid,View,Text,Platform,StyleSheet,Linking, Alert} from "react-native";
+import {AsyncStorage,View,Text,Platform,StyleSheet,Linking, Alert} from "react-native";
 import { Container, Content, Grid, Row, Thumbnail, Icon } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import { TouchableHighlight } from 'react-native-gesture-handler';
@@ -9,10 +9,13 @@ export default class ProfileTab extends Component {
     constructor(props){
         super(props);
         this.state = {
-            isLogin:false
+            isLogin:false,
+            isLoading:true,
+            userData:[]
         }
 
         this.logoutPressed = this.logoutPressed.bind(this);
+        this.onEnter = this.onEnter.bind(this);
     }
 
     async removeItemValue(key) {
@@ -24,6 +27,40 @@ export default class ProfileTab extends Component {
             return false;
         }
     }
+
+    componentDidMount(){
+        if(this.state.isLogin) {
+            this.getUserProfile();
+        }
+    }
+
+    getUserProfile(){
+            console.log(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US')
+            fetch(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US?userSecStamp='+encodeURIComponent(global.userSecStamp),
+            {
+                credentials: 'include',
+                headers:{
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                console.log('Component Did Mount Data List: '+ responseJson);
+                if( responseJson != undefined && responseJson.length != 0 ){
+                    console.log('<--- getUserProfile Loaded From Server --->' + responseJson);
+                    this.setState({isLoading:false,
+                                userData: responseJson});
+                }
+                else {
+                    this.setState({isLoading:false});
+                }
+            })
+            .catch((error) => {
+                console.error(error.message + ' on ProfileTab at line 53');
+            });
+    }
+
     logoutPressed(){
         Alert.alert(
             strings('alerts.logoutFromSystemHeader'),
@@ -31,6 +68,7 @@ export default class ProfileTab extends Component {
             [
                 {text: strings('yes'), onPress: () => {
                     global.isLogin = false;
+                    this.setState({isLogin:false})
                     console.log("Logout Pressed...");
                     this.removeItemValue('@MySuperStore:userName');   
                     this.removeItemValue('@MySuperStore:password');
@@ -47,14 +85,15 @@ export default class ProfileTab extends Component {
         if(this.state.isLogin) {
             return (
                 <Grid>
-                    <TouchableHighlight onPress={() => {Actions.ProfilePage()}}>
+                    <TouchableHighlight onPress={() => {Actions.ProfilePage({userData:this.state.userData})}}>
                         <Row avatar style={styles.firstPartContainer}>
                             <View style={{flex:1,alignItems:'flex-start',padding:20}}>
-                                <Thumbnail style={{borderWidth:2,borderColor:'white'}} source={require('../assets/user.jpeg')} />
+                                <Thumbnail style={{borderWidth:2,borderColor:'white'}} 
+                                            source={{uri: global.appAddress+'/Image?imagePath='+ this.state.userData.Photo}} />
                             </View>
                             <View style={{flex:9,alignItems:'flex-start',flexDirection:'column',justifyContent:'center',padding: 20}}>
                                 <Text style={{color:'white',fontSize:20,fontWeight:'700'}}>
-                                    Ali UZAR
+                                    {this.state.userData.Name}
                                 </Text>
                                 <Text  style={{color:'white',fontSize:12,fontWeight:'500'}}>
                                     View and edit profile
@@ -170,8 +209,12 @@ export default class ProfileTab extends Component {
         }
     }
 
-    setIsLogin(isLogin){
+    onEnter(isLogin){
         this.setState({isLogin})
+        if(isLogin == true) {
+            this.getUserProfile();
+        }
+        
     }
 
     render(){
