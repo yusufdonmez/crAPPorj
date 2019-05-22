@@ -18,7 +18,6 @@ class ReviewList extends Component {
         };
     }
 
-
     getReviews(){
         console.log(global.appAddress + '/service/c1/json/PublicService/carReviews/en_US'+'carId:'+this.props.carID+'userId:'+this.props.userID)
         
@@ -85,7 +84,7 @@ class ReviewList extends Component {
                                     <Body>
                                         <Text style={{fontWeight: '600',color:theme.COLORS.Secondary}}>{item.Name}</Text>
                                         <Text note>{item.GuestComment}</Text>
-                                        <View style={styles.guestStar}></View>{this._renderReviewStars(item.GuestRank)}
+                                        <View style={styles.guestStar}>{this._renderReviewStars(item.GuestRank)}</View>
                                     </Body>
                                     <Right>
                                         <Text note>{item.Date}</Text>

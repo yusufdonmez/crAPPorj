@@ -25,7 +25,7 @@ export default class HostPage extends Component {
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
                         heading="Reviews">
-                        <HostReviews />
+                        <HostReviews userID={global.userId} />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
