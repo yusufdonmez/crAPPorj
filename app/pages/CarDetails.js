@@ -218,12 +218,13 @@ class CarDetails extends Component {
                                 {data.carFeature != undefined && data.carFeature.map((item, i,arr) =>
                                     <View key={item.EngName} style={{height:40}}>
                                     {i < Math.floor(width/70) && (
-                                        <Icon name={item.icon} size={24} color='gray' style={styles.featureIcon}></Icon>
+                                        <Icon name="add-circle" size={24} color='gray' style={styles.featureIcon}></Icon>
                                         )
                                     }
+                                    <Text style={{fontSize:10}}>{item.EngName}</Text>
                                     {i == Math.floor(width/70)+1 && (
                                         <View style={{flex:1,justifyContent: 'flex-end',height:40}}>
-                                            <Button transparent iconRight onPress={() => (Actions.Features({featureList:this.props.itemDetails.features}))}>
+                                            <Button transparent iconRight onPress={() => (Actions.Features({featureList:data.carFeature}))}>
                                                 <Text> {arr.length - Math.floor((width/70))} More > </Text>
                                             </Button>
                                         </View>

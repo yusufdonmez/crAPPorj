@@ -19,7 +19,7 @@ class FeatureList extends Component {
                             {this.props.featureList.map((item, i) =>
                                 <Row style={styles.featureContainer}>
                                     <Icon name={item.icon} size={30} color='gray' style={styles.featureIcon}></Icon>
-                                    <Text style={{color:'black',fontSize:22,}}> {item.icon} </Text>
+                                    <Text style={{color:'black',fontSize:22,}}> {item.EngName} </Text>
                                 </Row>
                             )}
                         </Grid>
