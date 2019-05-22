@@ -11,8 +11,9 @@ import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { Container, Content ,Button, List, ListItem, Left, Thumbnail, Body, Icon, Right } from "native-base";
 
 class ActivityTrips extends Component {
+    
     render() {
-        const data = Array.from({length: 1});
+        const data = Array.from({length: 10});
         return (
             <Container>
                 <Content>
@@ -23,7 +24,7 @@ class ActivityTrips extends Component {
                     </View>
                     <List>
                         {data.map((item, i) =>
-                            <ListItem avatar onPress={() => {Actions.ProfilePage();}}>
+                            <ListItem avatar onPress={() => {Actions.TripDetail();}}>
                                 <Left>
                                     <Thumbnail source={require('../assets/user.jpeg')} />
                                 </Left>

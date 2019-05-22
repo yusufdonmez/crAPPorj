@@ -14,14 +14,13 @@ import CheckoutPage from './CheckoutPage';
 import ProfilePage from './ProfilePage';
 import Favorites from './Favorites';
 import Account from './Account';
+import EditProfile from './EditProfile';
 import MapViewComponent from './MapViewComponent';
 
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 import { strings } from '../locales/i18n'
 
-import ActivityTrips from '../SubTabs/ActivityTrips';
-import BookedTrips from '../SubTabs/BookedTrips';
-import HistoryTrips from '../SubTabs/HistoryTrips';
+import TripDetail from '../TripTab/TripDetails/TripDetail';
 
 import Guidelines from '../SubPages/Guidelines';
 import FAQuestions from '../SubPages/FAQuestions';
@@ -32,7 +31,7 @@ import PickupAndReturn from '../SubPages/PickupAndReturn'
 import SignIn from '../Modals/SignIn';
 
 import { Icon, Button } from 'native-base';
-import { TouchableHighlight } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import SearchModal from '../Modals/SearchModal';
 
 import * as theme from '../assets/theme'
@@ -92,10 +91,11 @@ class Routing extends Component {
 							component={CarDetails} 
 							backTitleEnabled={false}
 							renderRightButton={() => (
-								<TouchableHighlight onPress={() => {Actions.refs.CarDetails.shareCar()} }>
+								<TouchableOpacity onPress={() => {Actions.refs.CarDetails.shareCar()} }>
 									<Icon name='share' size={24} style={{ color: 'white', paddingRight: 10 }} />
-								</TouchableHighlight>)}
+								</TouchableOpacity>)}
 						/>
+						
 
 						<Scene
 							titleStyle={styles.programTitleStyle}
@@ -114,32 +114,6 @@ class Routing extends Component {
 							key="CarList"
 							backTitle=''
 							component={CarList}
-						/>
-
-						<Scene
-							backTitle=''
-							titleStyle={styles.programTitleStyle}
-							direction="vertical"
-							key="ActivityTrips"
-							backTitleEnabled={false}
-							component={ActivityTrips}
-							title="Activity Trips"
-						/>
-						<Scene
-							titleStyle={styles.programTitleStyle}
-							direction="vertical"
-							key="BookedTrips"
-							backTitleEnabled={false}
-							component={BookedTrips}
-							title="Booked Trips"
-						/>
-
-						<Scene
-							direction="vertical"
-							key="HistoryTrips"
-							backTitleEnabled={false}
-							component={HistoryTrips}
-							title="History Trips"
 						/>
 
 						<Scene
@@ -163,16 +137,24 @@ class Routing extends Component {
 
 						<Scene
 							titleStyle={styles.programTitleStyle}
-							clone
+							backTitleEnabled={false}
+							direction="vertical"
+							key="MyProfilePage"
+							component={ProfilePage}
+							title="Profile"
+							renderRightButton={() => (
+								<TouchableOpacity style={{backgroundColor:'#231f20'}} onPress={() => {Actions.refs.MyProfilePage.editProfileModal()} }>
+									<Icon name="create" size={24} style={{ color: 'white',backgroundColor:'#231f20', paddingRight: 10 }} />
+								</TouchableOpacity>)}
+						/>
+
+						<Scene
+							titleStyle={styles.programTitleStyle}
 							backTitleEnabled={false}
 							direction="vertical"
 							key="ProfilePage"
 							component={ProfilePage}
 							title="Profile"
-							renderRightButton={() => (
-								<TouchableHighlight style={{backgroundColor:'#231f20'}} onPress={() => {Actions.refs.ProfilePage.editProfileModal()} }>
-									<Icon name="create" size={24} style={{ color: 'white',backgroundColor:'#231f20', paddingRight: 10 }} />
-								</TouchableHighlight>)}
 						/>
 
 						<Scene
@@ -216,6 +198,24 @@ class Routing extends Component {
 							key="Account"
 							component={Account}
 							title="Account"
+						/>
+						<Scene
+							titleStyle={styles.programTitleStyle}
+							clone
+							backTitleEnabled={false}
+							direction="vertical"
+							key="EditProfile"
+							component={EditProfile}
+							title="Edit Profile"
+						/>
+
+						<Scene
+							titleStyle={styles.programTitleStyle}
+							backTitleEnabled={false}
+							direction="vertical"
+							key="TripDetail"
+							component={TripDetail}
+							title="Trip"
 						/>
 
 					</Scene>

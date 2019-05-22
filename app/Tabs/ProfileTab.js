@@ -27,6 +27,32 @@ export default class ProfileTab extends Component {
             return false;
         }
     }
+    getUserProfile(){
+        console.log(global.appAddress + '/service/c1/json/PrivateService/getUserNameAndAvatar/en_US')
+        fetch(global.appAddress + '/service/c1/json/PrivateService/getUserNameAndAvatar/en_US?userSecStamp='+encodeURIComponent(global.userSecStamp),
+        {
+            credentials: 'include',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('Component Did Mount Data List: '+ responseJson);
+            if( responseJson != undefined && responseJson.length != 0 ){
+                console.log('<--- getUserProfile Loaded From Server --->' + responseJson);
+                this.setState({isLoading:false,
+                            userData: responseJson});
+            }
+            else {
+                this.setState({isLoading:false});
+            }
+        })
+        .catch((error) => {
+            console.error(error.message + ' on ProfileTab at line 53');
+        });
+    }
 
     componentDidMount(){
         if(this.state.isLogin) {
@@ -34,32 +60,6 @@ export default class ProfileTab extends Component {
         }
     }
 
-    getUserProfile(){
-            console.log(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US')
-            fetch(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US?userSecStamp='+encodeURIComponent(global.userSecStamp),
-            {
-                credentials: 'include',
-                headers:{
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json'
-                },
-            })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                console.log('Component Did Mount Data List: '+ responseJson);
-                if( responseJson != undefined && responseJson.length != 0 ){
-                    console.log('<--- getUserProfile Loaded From Server --->' + responseJson);
-                    this.setState({isLoading:false,
-                                userData: responseJson});
-                }
-                else {
-                    this.setState({isLoading:false});
-                }
-            })
-            .catch((error) => {
-                console.error(error.message + ' on ProfileTab at line 53');
-            });
-    }
 
     logoutPressed(){
         Alert.alert(
@@ -85,7 +85,7 @@ export default class ProfileTab extends Component {
         if(this.state.isLogin) {
             return (
                 <Grid>
-                    <TouchableHighlight onPress={() => {Actions.ProfilePage({userData:this.state.userData})}}>
+                    <TouchableHighlight onPress={() => {Actions.MyProfilePage({userID:this.state.userData.userID})}}>
                         <Row avatar style={styles.firstPartContainer}>
                             <View style={{flex:1,alignItems:'flex-start',padding:20}}>
                                 <Thumbnail style={{borderWidth:2,borderColor:'white'}} 

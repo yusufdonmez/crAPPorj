@@ -98,7 +98,7 @@ class CarDetails extends Component {
 			if (i > star) {
 				starName = 'star-outline';
 			}
-			stars.push((<Icon style={styles.reviewStar} name={starName} ></Icon>));
+			stars.push((<Icon key={Math.random()} style={styles.reviewStar} name={starName} ></Icon>));
         }
         return stars
     }
@@ -116,11 +116,13 @@ class CarDetails extends Component {
     }
 
     shareCar(){
+        {/*Use Ri Zone application for share event*/}
         Actions.Account();
     }
 
     render() {
         const data = this.state.carDetails;
+        console.log('carid: '+this.props.itemDetails.id);
         return (
             <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container style={styles.fill}>
@@ -169,7 +171,7 @@ class CarDetails extends Component {
                             <Row style={ { height: 30 } }>
                                 <Button transparent>
                                     <Text style={styles.tripNumberText}> 
-                                        {data.tripCount} Trip { this._renderReviewStars(data.NoOfStar) }
+                                        {data.CarTripCount} Trip { this._renderReviewStars(data.NoOfStar) }
                                     </Text>
                                 </Button>
                             </Row>
@@ -214,7 +216,7 @@ class CarDetails extends Component {
                             </Row>
                             <Row style={styles.specContainer}>
                                 {data.carFeature != undefined && data.carFeature.map((item, i,arr) =>
-                                    <View style={{height:40}}>
+                                    <View key={item.EngName} style={{height:40}}>
                                     {i < Math.floor(width/70) && (
                                         <Icon name={item.icon} size={24} color='gray' style={styles.featureIcon}></Icon>
                                         )
@@ -238,7 +240,7 @@ class CarDetails extends Component {
                                     </TouchableOpacity>
                                 </Left>
                                 <Body style={{flex:2,justifyContent: 'flex-start'}}>
-                                    <TouchableOpacity style={{textAlign:'left'}} onPress={() => (Actions.Guidelines() )}>
+                                    <TouchableOpacity style={{textAlign:'left'}} onPress={() => (Actions.Guidelines({guidelines:data.Guidelines}) )}>
                                         <Text> Guidelines </Text>
                                     </TouchableOpacity>
                                 </Body>
@@ -269,7 +271,11 @@ class CarDetails extends Component {
                                     <Text> Reviews </Text>
                                 </Body>
                                 <Right style={styles.reviewBtnContainer}>
-                                    <TouchableOpacity style={styles.reviewBtnContainer} onPress={() => (Actions.Reviews({userID:1}) )}>
+                                    <TouchableOpacity style={styles.reviewBtnContainer} 
+                                                    onPress={() => (Actions.Reviews({userID:1,
+                                                                                     carID:this.props.itemDetails.id, 
+                                                                                     NoOfStar:data.NoOfStar, 
+                                                                                     NoOfReview:data.NoOfReview}) )}>
                                         { this._renderReviewStars(4) }
                                         <Icon name='arrow-forward' size={20} color='gray'></Icon>
                                     </TouchableOpacity>
@@ -277,16 +283,16 @@ class CarDetails extends Component {
                             </Row>
 
 
-                            <Row avatar  style={{padding:10}} onPress={() => {Actions.ProfilePage();}}>
+                            <Row avatar  style={{padding:10}} onPress={() => {Actions.ProfilePage({userID:data.UserID});}}>
                                 <View style={{flex:1,alignItems:'flex-start'}}>
                                     <Text style={{fontWeight: '600',color:'gray'}}>OWNED BY</Text>
-                                    <Text style={{fontWeight: '600',fontSize:30,color:theme.COLORS.Secondary}}>William L.</Text>
+                                    <Text style={{fontWeight: '600',fontSize:30,color:theme.COLORS.Secondary}}>{data.userName}</Text>
                                     <View style={{flexDirection: 'row'}}>
-                                        { this._renderReviewStars(4) }
+                                        { this._renderReviewStars(data.userStar) }
                                     </View>
                                 </View>
                                 <View style={{flex:1,alignItems:'flex-end'}}>
-                                    <Thumbnail large source={require('../assets/user.jpeg')} />
+                                    <Thumbnail large  source={{uri: global.appAddress+'/Image?imagePath='+ data.userPhoto}} />
                                 </View>
                             </Row>
 

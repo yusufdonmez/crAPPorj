@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 import {StyleSheet, Dimensions} from "react-native";
 import { Container, Tabs, Tab, ScrollableTab} from 'native-base';
-import ActivityTrips from '../SubTabs/ActivityTrips';
-import BookedTrips from '../SubTabs/BookedTrips';
-import HistoryTrips from '../SubTabs/HistoryTrips';
+import ActivityTrips from '../TripTab/ActivityTrips';
+import BookedTrips from '../TripTab/BookedTrips';
+import HistoryTrips from '../TripTab/HistoryTrips';
 import * as theme from '../assets/theme'
-
-const dimen = Dimensions.get('window');
 class TripsPage extends Component {
     constructor(props){
         super(props)

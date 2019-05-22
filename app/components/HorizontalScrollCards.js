@@ -25,7 +25,7 @@ export default class HorizontalScrollCards extends React.Component {
 			if (i > star) {
 				starName = 'star-outline';
 			}
-			stars.push((<Icon style={styles.reviewStar} name={starName} ></Icon>));
+			stars.push((<Icon key={Math.random()} style={styles.reviewStar} name={starName} ></Icon>));
         }
         return stars
     }

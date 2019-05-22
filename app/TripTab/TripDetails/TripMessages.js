@@ -5,17 +5,16 @@ import {
     StyleSheet
 } from "react-native";
 
-class Guidelines extends Component {
+class TripMessages extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Text>Guidelines</Text>
-                <Text>{this.props.guidelines}</Text>
+                <Text>TripMessages</Text>
             </View>
         );
     }
 }
-export default Guidelines;
+export default TripMessages;
 
 const styles = StyleSheet.create({
     container: {

@@ -1,41 +1,58 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
+
 import {StyleSheet, Dimensions} from "react-native";
 import { Container, Tabs, Tab, ScrollableTab} from 'native-base';
-import HostCars from '../HostTab/HostCars';
-import HostReviews from '../HostTab/HostReviews';
-import HostEarnings from '../HostTab/HostEarnings';
-import * as theme from '../assets/theme'
+import TripInfo from './TripInfo'
+import TripMessages from './TripMessages'
+import TripUserInfo from './TripUserInfo'
+import * as theme from '../../assets/theme'
 
-export default class HostPage extends Component {
+class TripDetail extends Component {
     constructor(props){
-        super(props);
+        super(props)
+
     }
-    render(){
+
+    componentDidMount(){
+        {/* With this.props.tripID 
+            => Fetch trip details and pass these info to Trip Tabs*/}
+    }
+
+    render() {
         return (
             <Container >
-                <Tabs tabBarUnderlineStyle={{backgroundColor: global.programSecondaryColor}} renderTabBar={()=>
+                <Tabs initialPage={this.props.initialPage} tabBarUnderlineStyle={{backgroundColor: global.programSecondaryColor}} 
+                    renderTabBar={()=>
                     <ScrollableTab style={{backgroundColor:theme.COLORS.Primary}}/>}>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}} 
-                        heading="Cars">
-                        <HostCars />
+                        heading="Trip">
+                        <TripInfo />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
-                        heading="Reviews">
-                        <HostReviews />
+                        heading="Messages">
+                        <TripMessages />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
-                        heading="Earnings">
-                        <HostEarnings />
+                        heading="User">
+                        <TripUserInfo />
                     </Tab>
                 </Tabs>
             </Container>
         );
     }
-
 }
+export default TripDetail;
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
+    }
+});
