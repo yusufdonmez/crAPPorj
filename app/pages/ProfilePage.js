@@ -62,7 +62,7 @@ class ProfilePage extends Component {
 			if (i > star) {
 				starName = 'star-outline';
 			}
-			stars.push((<Icon style={styles.reviewStar} name={starName} ></Icon>));
+			stars.push((<Icon key={Math.random()} style={styles.reviewStar} name={starName} ></Icon>));
         }
         return stars
     }
@@ -240,11 +240,11 @@ class ProfilePage extends Component {
                             </Row>
 
                             {userData.fcCount != 0 && (
-                                <Button transparent onPress={() => {Actions.Favorites();}} style={{flex:1,width:'100%',height:80,alignItems: "center"}}>
+                                <Button transparent onPress={() => (Actions.Favorites({userID:this.props.userID}))} style={{flex:1,width:'100%',height:80,alignItems: "center"}}>
                                     <Row style={styles.specContainer}>
                                         <Left style={styles.iconContainer}>
                                             <Icon name="heart" size={24} style={{color:'#231f20'}}></Icon>
-                                            <Text style={{justifyContent: 'center',paddingStart:20}}>Ali's favorites</Text>
+                                            <Text style={{justifyContent: 'center',paddingStart:20}}>{userData.Name}'s favorites</Text>
                                         </Left>
                                         <Body>
                                         </Body>

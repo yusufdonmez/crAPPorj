@@ -111,7 +111,7 @@ export default class ProfileTab extends Component {
                         </Row>
                     </TouchableHighlight>
 
-                    <TouchableHighlight onPress={() => {Actions.Favorites()}}>
+                    <TouchableHighlight onPress={() => (Actions.Favorites({userID:this.state.userData.userID}))}>
                         <Row style={styles.rowContainer}>
                             <Icon name='bookmark' style={{color:'white'}}></Icon>
                             

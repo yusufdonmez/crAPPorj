@@ -66,8 +66,6 @@ class ReviewList extends Component {
     render() {
     //const data = Array.from({length: 14});
     const data = this.state.reviewsData;
-    console.log('data: '+data);
-    console.log('data: '+data.Name);
         return (
             <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container>
