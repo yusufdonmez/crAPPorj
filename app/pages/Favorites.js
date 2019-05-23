@@ -73,7 +73,6 @@ class Favorites extends Component {
             <SafeAreaView style={{flex:1,backgroundColor: theme.COLORS.Primary}}>
                 <Container>
                     <Content>
-                        <Text>My Favorites</Text>
                         {data.map((item, i) =>
                             <View key={item.CarID} style={{flex:1,margin:15,flexDirection:'column'}}>
                                 <View style={{flex:1,position:'relative'}}>
