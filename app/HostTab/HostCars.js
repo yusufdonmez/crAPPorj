@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { FlatList,
+import { 
     StyleSheet,
     Text, 
     View, 
     Image,
-    SafeAreaView,
-    Dimensions,
+    SafeAreaView
 } from "react-native";
 import {Container,Content,CardItem,Card,Left,Button,Icon,List,ListItem, Right} from "native-base";
 import {Actions} from 'react-native-router-flux'
@@ -36,7 +35,7 @@ class HostCars extends Component {
         .then((responseJson) => {
             console.log('-hostcars-Component Did Mount Data List: '+ responseJson);
             if( responseJson != undefined && responseJson.length != 0 ){
-                console.log('<--- hostCars service loaded from server --->'+'&userSecStamp='+encodeURIComponent(global.userSecStamp));
+                console.log('<--- hostCars service loaded from server --->');
                 this.setState({isLoading:false,
                             hostCars: responseJson});
             }
