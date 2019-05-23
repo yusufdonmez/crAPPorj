@@ -24,7 +24,7 @@ class ActivityTrips extends Component {
                     </View>
                     <List>
                         {data.map((item, i) =>
-                            <ListItem avatar onPress={() => {Actions.TripDetail();}}>
+                            <ListItem key={Math.random()} avatar onPress={() => {Actions.TripDetail();}}>
                                 <Left>
                                     <Thumbnail source={require('../assets/user.jpeg')} />
                                 </Left>
