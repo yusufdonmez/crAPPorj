@@ -11,12 +11,14 @@ import {Container,Content,CardItem,Card,Left,Button,Icon,List,ListItem, Right} f
 import {Actions} from 'react-native-router-flux'
 import { TouchableWithoutFeedback, TouchableOpacity, TouchableHighlight } from "react-native-gesture-handler";
 import * as theme from '../assets/theme';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome'
 
 class HistoryTrips extends Component {
     constructor(props){
         super(props)
         this.state ={
             isLoading:true,
+            noRecordsFound:true,
             pastTrips : []
         };
     }
@@ -38,14 +40,16 @@ class HistoryTrips extends Component {
             if( responseJson != undefined && responseJson.length != 0 ){
                 console.log('<--- pastTrips service loaded from server --->');
                 this.setState({isLoading:false,
-                            pastTrips: responseJson});
+                            pastTrips: responseJson,
+                            noRecordsFound:false});
             }
             else {
                 this.setState({isLoading:false,noRecordsFound:true});
+                console.log('PASTTRIPS - no records found');
             }
         })
         .catch((error) => {
-            console.error('-pastTrips- '+error.message + '  at line 48');
+            console.error('-pastTrips- '+error.message + '  at line 52');
         });
     }
 
@@ -65,19 +69,45 @@ class HistoryTrips extends Component {
         return stars
     }
     _renderItem = ({item}) => (
-        <View key={item.id}>
-        <Text>flatlist:{item.id}</Text>
-            <Text>{item.FromDate}</Text>
-            <Text>{item.ToDate}</Text>
-            <Text>{item.Make}</Text>
-            <Text>{item.Name}</Text>
+        <View style={styles.listItem}>
+            <View style={styles.itemHead}>
+                    <Text>{item.FromDate} -{ item.ToDate}</Text>
+            </View>
+            <View style={styles.itemBody}>
+                <View style={styles.itemContent}>
+                    <Text>{item.Name}'s {item.ModelYear} {item.Make} {item.Brand}</Text>
+                </View>
+                <Image source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}
+                                                    style={styles.itemImage}/>
+            </View>
         </View>
     )
     render() {
-        return (
-                        <View style={styles.container}><Text>History Trips</Text></View>
-                  
-        );
+        if(this.state.noRecordsFound){
+            return (
+             
+                <View style={styles.container}>
+                    <FontAwesomeIcon name='road' color='gray' size={130} />
+                    <Text style={{paddingTop:20,fontSize:40,fontWeight: '700',color:'gray'}}>No Trips</Text>
+                    <Button block bordered style={{margin:20,borderColor:'gray'}}
+                            onPress={() => {Actions.Host();}}>
+                        <Text style={{fontSize:22,fontWeight:'800',color:'gray'}}>List a car</Text>
+                    </Button>
+                    <Button block style={{backgroundColor:global.programSecondaryColor,margin:20}} 
+                            onPress={() => {Actions.HomeScreen();}}>
+                        <Text style={{fontSize:22,fontWeight:'800',color:'white'}}>Find a car</Text>
+                    </Button>
+                </View>
+                );
+        } else {
+            return(
+                <FlatList 
+                data={this.state.pastTrips}
+                renderItem={this._renderItem}
+                keyExtractor={(item) => item.id.toString()}
+                />
+            );
+        }
     }
 }
 export default HistoryTrips;
@@ -87,5 +117,29 @@ const styles = StyleSheet.create({
         flex:1,
         justifyContent: 'center',
         alignItems: 'center'
-    }   
+    },
+    listItem:{
+        borderBottomWidth:1,
+        borderBottomColor: '#888',
+    },
+    itemHead:{
+        flex:1,
+        padding:10,
+        alignItems: 'center',
+        borderBottomWidth:1,
+        borderBottomColor: '#666',
+    },
+    itemBody:{
+        flex:3,
+        flexDirection:'row',
+        padding:10,
+    },
+    itemContent:{
+        flex:2,
+        justifyContent: 'center',
+    },
+    itemImage:{
+        height: 100,
+        flex:1,
+    }
 });
