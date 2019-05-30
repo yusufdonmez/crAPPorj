@@ -34,13 +34,20 @@ class TripDetail extends Component {
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
                         heading="Messages">
-                        <TripMessages />
+                        <TripMessages
+                        photo={this.props.photo}
+                        />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
-                        heading="User">
-                        <TripUserInfo />
+                        heading={this.props.userName}>
+                        <TripUserInfo
+                        photo={this.props.photo}
+                        userName={this.props.userName}
+                        mobile={this.props.mobile}
+                        joinDate={this.props.joinDate}
+                        isVerified={this.props.isVerified} />
                     </Tab>
                 </Tabs>
             </Container>

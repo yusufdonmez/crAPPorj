@@ -8,7 +8,8 @@ import {
     SafeAreaView
 } from "react-native";
 import { Container, Content, List, ListItem, CardItem,  Left, Button, Thumbnail } from "native-base";
-import { TouchableHighlight } from "react-native-gesture-handler";
+import {Actions} from 'react-native-router-flux'
+import { TouchableWithoutFeedback, TouchableOpacity, TouchableHighlight } from "react-native-gesture-handler";
 
 import * as theme from '../assets/theme'
 
@@ -74,7 +75,8 @@ class Favorites extends Component {
                 <Container>
                     <Content>
                         {data.map((item, i) =>
-                            <View key={item.CarID} style={{flex:1,margin:15,flexDirection:'column'}}>
+                        <TouchableWithoutFeedback key={item.CarID} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))} >
+                            <View  style={{flex:1,margin:15,flexDirection:'column'}}>
                                 <View style={{flex:1,position:'relative'}}>
                                     <Image style={{height: 200, width: null, flex: 1}} 
                                             source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}/>
@@ -87,6 +89,7 @@ class Favorites extends Component {
                                     <Text style={styles.yearText}>{item.ModelYear}</Text>
                                 </View>
                             </View>
+                        </TouchableWithoutFeedback>                        
                         )}
                     </Content>
                 </Container>
