@@ -3,12 +3,15 @@ import {
     View,
     Text,
     StyleSheet,
-    SafeAreaView
+    SafeAreaView,FlatList,Dimensions
 } from "react-native";
 import { Container, Content, Grid, Row, Icon, List, ListItem, Body, Left, Right, Thumbnail, Button} from "native-base";
 import { Actions } from "react-native-router-flux";
 import * as theme from '../assets/theme'
 import { TouchableOpacity } from 'react-native-gesture-handler';
+
+const {width,height} = Dimensions.get('window')
+
 class ReviewList extends Component {
     constructor(props){
         super(props)
@@ -19,7 +22,7 @@ class ReviewList extends Component {
     }
 
     getReviews(){
-        console.log(global.appAddress + '/service/c1/json/PublicService/carReviews/en_US'+'carId:'+this.props.carID+'userId:'+this.props.userID)
+        console.log(global.appAddress + '/service/c1/json/PublicService/carReviews/en_US?id='+this.props.carID)
         
         fetch(global.appAddress + '/service/c1/json/PublicService/carReviews/en_US?id=' + this.props.carID ,
         {
@@ -61,6 +64,28 @@ class ReviewList extends Component {
     componentDidMount(){
         this.getReviews();
     }
+     
+    _renderItem = ({item}) => (
+        <Row>
+            <TouchableOpacity onPress={() => {Actions.ProfilePage({userID:item.GuestID})}}>
+            <View style={{width:75, alignItems: 'center', marginTop:10,}}>
+            {(typeof item.Photo == 'undefined') ? 
+                <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ 'FwMdCwarLd60SKduyl8Y9LqlPZb0pc5s2I7IyDpmQDk%3D' }} /> 
+                :
+                <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}} />
+            }
+            </View>
+            </TouchableOpacity>
+            <View  style={{width:width-75,borderBottomWidth: 1, borderColor:'#aaa', padding:10,}}>
+                    <View style={{flexDirection: 'row',justifyContent:'space-between',paddingVertical:5}}>
+                        <Text style={{fontWeight: '600',fontSize:16}}>{item.Name}</Text>
+                        <Text style={{fontWeight: '600',fontSize:16, color:'#aaa'}} note>{item.Date}</Text>
+                    </View>
+                    <Text note>{item.GuestComment}</Text>
+                    <View style={styles.guestStar}>{this._renderReviewStars(item.GuestRank)}</View>
+            </View>
+        </Row>
+    )
 
     render() {
     //const data = Array.from({length: 14});
@@ -75,23 +100,11 @@ class ReviewList extends Component {
                                 <Text> {this.props.NoOfReview} reviews </Text>   
                             </View>
                         </View>
-                        <List key={Math.random()}>
-                            {data.map((item, i) =>
-                                <ListItem key={item.Date} avatar onPress={() => {Actions.Profile()}}>
-                                    <Left>
-                                        <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}} />
-                                    </Left>
-                                    <Body>
-                                        <Text style={{fontWeight: '600',color:theme.COLORS.Secondary}}>{item.Name}</Text>
-                                        <Text note>{item.GuestComment}</Text>
-                                        <View style={styles.guestStar}>{this._renderReviewStars(item.GuestRank)}</View>
-                                    </Body>
-                                    <Right>
-                                        <Text note>{item.Date}</Text>
-                                    </Right>
-                                </ListItem>
-                            )}
-                        </List>
+                        <FlatList 
+                            data={this.state.reviewsData}
+                            renderItem={this._renderItem}
+                            keyExtractor={(item) => item.id.toString()} //tostring fro warning cell type err
+                        />
                     </Content>
                 </Container>
             </SafeAreaView>
@@ -117,6 +130,7 @@ const styles = StyleSheet.create({
         marginEnd:3
     },
     guestStar: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        paddingTop:5,
     }
 });

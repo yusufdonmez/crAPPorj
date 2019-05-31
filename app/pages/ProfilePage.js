@@ -29,8 +29,8 @@ class ProfilePage extends Component {
     }
 
     getUserProfile(){
-        console.log(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US')
-        fetch(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US?userID='+ this.props.userID +'&userSecStamp='+encodeURIComponent(global.userSecStamp),
+        console.log(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US?userID=' + this.props.userID)
+        fetch(global.appAddress + '/service/c1/json/PrivateService/getUserProfile/en_US?userID='+ this.props.userID,
         {
             credentials: 'include',
             headers:{
@@ -77,8 +77,13 @@ class ProfilePage extends Component {
                         </View> 
                         <View  style={{alignItems: 'center'}}>
                             <View style={{top:-45,flexDirection: "column", alignItems: 'center'}}>
-                                <Thumbnail avatar style={{width:90,height: 90,borderRadius: 45,borderColor:'white',borderWidth: 3}} 
-                                        source={{uri: global.appAddress+'/Image?imagePath='+ userData.Photo}} />
+                                {(typeof userData.Photo == 'undefined') ? 
+                                    <Thumbnail avatar style={{width:90,height: 90,borderRadius: 45,borderColor:'white',borderWidth: 3}} 
+                                    source={{uri: global.appAddress+'/Image?imagePath='+ 'FwMdCwarLd60SKduyl8Y9LqlPZb0pc5s2I7IyDpmQDk%3D'}} />
+                                :
+                                    <Thumbnail avatar style={{width:90,height: 90,borderRadius: 45,borderColor:'white',borderWidth: 3}} 
+                                    source={{uri: global.appAddress+'/Image?imagePath='+ userData.Photo}} />
+                                }
                                 
                                 <Text style={{marginTop:10,color:'black',fontSize:30,fontWeight: '900'}}>{userData.Name}</Text>
                                 {userData.TripCount != 0 

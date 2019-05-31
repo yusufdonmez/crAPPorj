@@ -75,7 +75,7 @@ class Favorites extends Component {
                 <Container>
                     <Content>
                         {data.map((item, i) =>
-                        <TouchableWithoutFeedback key={item.CarID} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))} >
+                        <TouchableWithoutFeedback key={item.id} onPress={() => (Actions.CarDetails({title:item.Make,itemDetails:item}))} >
                             <View  style={{flex:1,margin:15,flexDirection:'column'}}>
                                 <View style={{flex:1,position:'relative'}}>
                                     <Image style={{height: 200, width: null, flex: 1}} 
