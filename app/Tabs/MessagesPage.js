@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import {Dimensions,View,Text,Platform,StyleSheet, FlatList} from "react-native";
-import { Container, Content, List, ListItem, Thumbnail, Left, Body, Right, Icon } from 'native-base';
+import {Dimensions,View,Text, FlatList} from "react-native";
+import { Container, Content, Row,Thumbnail, Icon } from 'native-base';
 import { Actions } from 'react-native-router-flux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -50,35 +50,42 @@ export default class MessagesPage extends Component {
         }
     
         _renderItem = ({item}) => (
-            <ListItem>
-                <Left>
+            <Row >
+                <View style={{width:75, justifyContent: 'center',alignItems: 'center'}}>
                     <TouchableOpacity onPress={() => {Actions.TripDetail({initialPage:2, 
+                        tripID:item.TripID,
                         photo:item.Photo,
                         userName:item.Name,
                         mobile:item.MobileNumber,
                         joinDate:item.JoinDate, 
                         isVerified:item.IsVerified})}}>
                         <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}} />
+                        {console.log('messages-trip id: '+item.TripID)}
                     </TouchableOpacity>
-                </Left>
-                <Body>
-                    <TouchableOpacity onPress={() => {Actions.TripDetail({initialPage:1})}}>
-                        <Text style={{fontWeight: '400',fontSize:11,paddingTop:5}}>{item.Status} Trip with Ali's {item.Make}</Text>
+                </View>
+                <View  style={{width:width-75,borderBottomWidth: 1, borderColor:'#aaa', padding:10,}}>
+                    <TouchableOpacity onPress={() => {Actions.TripDetail({initialPage:1,
+                        tripID:item.TripID,
+                        photo:item.Photo,
+                        userName:item.Name,
+                        mobile:item.MobileNumber,
+                        joinDate:item.JoinDate, 
+                        isVerified:item.IsVerified})}}>
+                        <View style={{flexDirection: 'row',justifyContent:'space-between',paddingTop:5}}>
+                            <Text style={{fontWeight: '400',fontSize:12}}>{item.Status} Trip with Ali's {item.Make}</Text>
+                            <Text style={{fontWeight: '400',fontSize:12, color:'#aaa'}} note>{item.Date}</Text>
+                        </View>
                         <Text style={{fontWeight: '600',color:global.programSecondaryColor,fontSize:22}}>{item.Name}</Text>
                         <View style={{flexDirection: 'row'}}>
                             <Icon name="chatbubbles" style={{color:'gray',fontSize:16,paddingEnd:5}}></Icon>
-                            <Text numberOfLines={1} ellipsizeMode='tail' note>{item.Message}</Text>
+                            <Text numberOfLines={1} ellipsizeMode='tail' style={{width:0.7*width,}} note>{item.Message}</Text>
                         </View>
                     </TouchableOpacity>
-                </Body>
-                <Right>
-                    <Text note>{item.Date}</Text>
-                </Right>
-            </ListItem>
+                </View>
+            </Row>
         )
     
     render(){
-        const data = Array.from({length: 14});
         return (
             <Container>
                 <Content>
@@ -91,5 +98,4 @@ export default class MessagesPage extends Component {
             </Container>
         );
     }
-
 }

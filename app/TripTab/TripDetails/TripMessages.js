@@ -1,76 +1,87 @@
 import React, { Component } from "react";
-import { 
-    View,
-    Dimensions,
-    Text,
-    StyleSheet
-} from "react-native";
-import { Thumbnail , Grid, Col, Row,Icon,Button,Content,Item,Input} from "native-base";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { Actions } from "react-native-router-flux";
-
-
+import {  Dimensions, Text, StyleSheet, FlatList} from "react-native";
+import { Thumbnail ,  Col, Row,Content} from "native-base";
 
 const { width, height } = Dimensions.get('window');
-const sms = "Hi Yusuf, \n\n bir sayfa içeriğinin okuyucunun dikkatini dağıttığı bilinen bir gerçektir. Lorem Ipsum kullanmanın amacı, sürekli 'buraya metin gelecek, buraya metin gelecek' yazmaya kıyasla daha dengeli bir harf dağılımı sağlayarak okunurluğu artırmasıdır. Şu anda birçok masaüstü yayıncılık paketi ve web sayfa düzenleyicisi, varsayılan mıgır metinler olarak Lorem Ipsum kullanmaktadır. \nBest,\nAli";
-const dt= "May,30 17:15"
+
 class TripMessages extends Component {
+    constructor(props){
+        super(props)
+        this.state ={
+            isLoading:true,
+            noRecordsFound:true,
+            messages : []
+        };
+}
+
+    getTripMessages(){
+        console.log(global.appAddress + '/service/c1/json/PrivateService/getTripMessages/en_US?tripID='+ this.props.tripID )
+        
+        fetch(global.appAddress + '/service/c1/json/PrivateService/getTripMessages/en_US?tripID='+ this.props.tripID ,
+        {
+            credentials: 'include',
+            headers:{
+                Accept: 'application/json',
+                'Content-Type': 'application/json'
+            },
+        })
+        .then((response) => response.json())
+        .then((responseJson) => {
+            console.log('-trip-messages-Component Did Mount Data List: '+ responseJson);
+            if( responseJson != undefined && responseJson.length != 0 ){
+                console.log('<--- trip-messages service loaded from server --->');
+                this.setState({isLoading:false,
+                            messages: responseJson,
+                            noRecordsFound:false});
+            }
+            else {
+                this.setState({isLoading:false,noRecordsFound:true});
+                console.log('trip-messages - no records found');
+            }
+        })
+        .catch((error) => {
+            console.error('trip-messages- '+error.message + '  at line 50');
+        });
+    }
+
+    componentDidMount(){
+        this.getTripMessages();
+    }
+
+    _renderItem = ({item}) => (
+        <Row style={styles.msgRow}>        
+            <Col style={styles.avatarCol}>
+            { ( item.sender != global.userId) &&  <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}} style={{width:50,height:50}} />}
+            </Col>
+            <Col>
+                <Text style={[ item.sender == global.userId ? styles.blueBorder : styles.greenBorder ,styles.textCol]}>{item.Message}</Text>
+                <Text style={styles.secondaryText}>{item.Date}</Text>
+            </Col>
+            <Col style={styles.avatarCol}>
+            { ( item.sender == global.userId) &&  <Thumbnail source={{uri: global.appAddress+'/Image?imagePath='+ item.Photo}}  style={{width:50,height:50}}  />}
+            </Col>
+        </Row>    
+        )
     render() {
         return (
-            <Content>
-                <Grid style={{padding:0, marginBottom:20,backgroundColor:'#FFF'}}>
-                    <Row style={styles.msgRow}>
-                        <Col style={styles.avatarCol}>
-                            <Thumbnail source={{uri: 'https://carrental.harmonyict.com/CarRental/Image?imagePath=0eg8NLX4byRJutLylJo8GW2QbD%2Bx3znF&pfdrid_c=true'}} />
-                        </Col>
-                        <Col>
-                            <Text style={[{borderWidth:1, borderColor:'green', padding:5},styles.textCol]}>{sms}</Text>
-                            <Text style={styles.secondaryText}>{dt}</Text>
-                        </Col>
-                        <Col style={styles.avatarCol}></Col>
-                    </Row>
-        
-                    <Row style={styles.msgRow}>
-                        <Col style={styles.avatarCol}></Col>
-                        <Col >
-                        <Text style={styles.textCol}>{sms}</Text>
-                        <Text style={styles.secondaryText}>{dt}</Text>
-                        </Col>
-                        <Col style={styles.avatarCol}>
-                        <Thumbnail source={{uri: 'https://carrental.harmonyict.com/CarRental/Image?imagePath=0eg8NLX4byRJutLylJo8GW2QbD%2Bx3znF&pfdrid_c=true'}} />
-                        </Col>
-                    </Row>
-        
-                    <Row style={styles.msgRow}>
-                        <Col style={styles.avatarCol}>
-                        <Thumbnail source={{uri: 'https://carrental.harmonyict.com/CarRental/Image?imagePath=0eg8NLX4byRJutLylJo8GW2QbD%2Bx3znF&pfdrid_c=true'}} />
-                        </Col>
-                        <Col >
-                        <Text style={styles.textCol}>{sms}</Text>
-                        <Text style={styles.secondaryText}>{dt}</Text>
-                        </Col>
-                        <Col style={styles.avatarCol}></Col>
-                    </Row>
-                </Grid>
-                <Item regular>
-                    <Input placeholder='Message' />
-                    <Icon name="md-send" />
-                </Item>
-          </Content>          
+        <Content>
+            <FlatList 
+                data={this.state.messages}
+                renderItem={this._renderItem}
+                keyExtractor={(item) => item.id.toString()} //tostring fro warning cell type err
+            />
+        </Content>         
         );
     }
 }
 export default TripMessages;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    },
     secondaryText:{fontSize:15,fontWeight:'400', color:'#999'},
     msgRow:{backgroundColor:'#fff',marginTop:20},
     avatarCol:{backgroundColor:'#fff',width:width/6,margin:5},
     textCol:{backgroundColor:'#fff',paddingTop:10,paddingLeft:5,paddingRight:5,paddingBottom:10,
-    borderWidth:1,borderColor:'#aad3aa'},
+    borderWidth:1},
+    greenBorder:{borderColor:'#88dd88'},
+    blueBorder:{borderColor:'#8888dd'},
 });

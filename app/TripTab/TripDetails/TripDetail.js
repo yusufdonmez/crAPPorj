@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import {StyleSheet, Dimensions} from "react-native";
+import {StyleSheet} from "react-native";
 import { Container, Tabs, Tab, ScrollableTab} from 'native-base';
 import TripInfo from './TripInfo'
 import TripMessages from './TripMessages'
@@ -28,20 +28,18 @@ class TripDetail extends Component {
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         heading="Trip">
-                        <TripInfo />
+                        <TripInfo tripID={this.props.tripID} />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
                         heading="Messages">
-                        <TripMessages
-                        photo={this.props.photo}
-                        />
+                        <TripMessages tripID={this.props.tripID} />
                     </Tab>
                     <Tab activeTextStyle={{color:'white'}} textStyle={{color:'gray'}} 
                         tabStyle={{backgroundColor:theme.COLORS.Primary}} 
                         activeTabStyle={{backgroundColor:theme.COLORS.Primary}}  
-                        heading={this.props.userName}>
+                        heading="User">
                         <TripUserInfo
                         photo={this.props.photo}
                         userName={this.props.userName}
@@ -55,11 +53,3 @@ class TripDetail extends Component {
     }
 }
 export default TripDetail;
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
-});
