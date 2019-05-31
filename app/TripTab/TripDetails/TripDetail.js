@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import {StyleSheet} from "react-native";
 import { Container, Tabs, Tab, ScrollableTab} from 'native-base';
 import TripInfo from './TripInfo'
 import TripMessages from './TripMessages'

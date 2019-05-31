@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import {  Dimensions, Text, StyleSheet, FlatList} from "react-native";
-import { Thumbnail ,  Col, Row,Content} from "native-base";
+import { Thumbnail ,  Col, Row, Content, Item, Input,Form,Textarea} from "native-base";
 
 const { width, height } = Dimensions.get('window');
 
@@ -10,7 +10,8 @@ class TripMessages extends Component {
         this.state ={
             isLoading:true,
             noRecordsFound:true,
-            messages : []
+            messages : [],
+            text:'',
         };
 }
 
@@ -70,6 +71,15 @@ class TripMessages extends Component {
                 renderItem={this._renderItem}
                 keyExtractor={(item) => item.id.toString()} //tostring fro warning cell type err
             />
+            <Form>
+                <Textarea rowSpan={5} 
+                bordered 
+                placeholder="Textarea" 
+                onChangeText={(text) => this.setState({text})}
+                value={this.state.text}
+                onSubmitEditing={(text)=> alert(this.state.text)}
+                />
+            </Form>
         </Content>         
         );
     }
